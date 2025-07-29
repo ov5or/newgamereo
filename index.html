@@ -1,0 +1,1955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiplayer Quiz Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #4f46e5;
+            --secondary-color: #06b6d4;
+            --success-color: #10b981;
+            --error-color: #ef4444;
+            --warning-color: #f59e0b;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+        }
+
+        [data-accessibility="true"] {
+            font-size: 120% !important;
+        }
+
+        [data-accessibility="true"] * {
+            font-size: inherit !important;
+        }
+
+        [data-rtl="true"] {
+            direction: rtl;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+            min-height: 100vh;
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px -8px var(--primary-color);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+        }
+
+        .btn-error {
+            background: var(--error-color);
+        }
+
+        .btn-warning {
+            background: var(--warning-color);
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .btn-large {
+            padding: 1.25rem 2.5rem;
+            font-size: 1.125rem;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: border-color 0.2s ease;
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .select {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        .card {
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .grid-2 {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+
+        .grid-3 {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+
+        .flex {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .flex-center {
+            align-items: center;
+            justify-content: center;
+        }
+
+        .flex-between {
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .flex-wrap {
+            flex-wrap: wrap;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-large {
+            font-size: 1.25rem;
+        }
+
+        .text-xl {
+            font-size: 1.5rem;
+        }
+
+        .text-2xl {
+            font-size: 2rem;
+        }
+
+        .font-bold {
+            font-weight: bold;
+        }
+
+        .mb-1 { margin-bottom: 0.5rem; }
+        .mb-2 { margin-bottom: 1rem; }
+        .mb-3 { margin-bottom: 1.5rem; }
+        .mb-4 { margin-bottom: 2rem; }
+
+        .mt-1 { margin-top: 0.5rem; }
+        .mt-2 { margin-top: 1rem; }
+        .mt-3 { margin-top: 1.5rem; }
+        .mt-4 { margin-top: 2rem; }
+
+        .party-code {
+            font-size: 3rem;
+            font-weight: bold;
+            letter-spacing: 0.5rem;
+            color: var(--primary-color);
+            text-align: center;
+            margin: 2rem 0;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: 1rem;
+            border: 3px dashed var(--primary-color);
+        }
+
+        .player-list {
+            list-style: none;
+        }
+
+        .player-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            background: var(--bg-secondary);
+            border-radius: 0.5rem;
+            border: 2px solid var(--border-color);
+        }
+
+        .avatar {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 1rem;
+        }
+
+        .device-icon {
+            margin-left: auto;
+            font-size: 1.25rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 1rem;
+            background: var(--bg-secondary);
+            border-radius: 0.5rem;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            transition: width 0.3s ease;
+            border-radius: 0.5rem;
+        }
+
+        .timer {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: conic-gradient(var(--primary-color) 0deg, var(--bg-secondary) 0deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 2rem auto;
+            transition: background 0.1s ease;
+        }
+
+        .question-card {
+            background: var(--bg-primary);
+            border: 3px solid var(--primary-color);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .difficulty-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+
+        .difficulty-easy {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .difficulty-hard {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .difficulty-impossible {
+            background: var(--error-color);
+            color: white;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .option-btn {
+            padding: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 0.5rem;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+
+        .option-btn:hover {
+            border-color: var(--primary-color);
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .option-btn.correct {
+            border-color: var(--success-color);
+            background: var(--success-color);
+            color: white;
+        }
+
+        .option-btn.wrong {
+            border-color: var(--error-color);
+            background: var(--error-color);
+            color: white;
+        }
+
+        .scoreboard {
+            background: var(--bg-secondary);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .score-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            background: var(--bg-primary);
+            border-radius: 0.5rem;
+            border: 2px solid var(--border-color);
+        }
+
+        .score-item.winner {
+            border-color: var(--warning-color);
+            background: linear-gradient(135deg, var(--warning-color), #fbbf24);
+            color: white;
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            text-align: center;
+            border: 2px solid var(--border-color);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .level-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 2rem;
+            font-weight: bold;
+            margin: 1rem 0;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-primary);
+            border-top: 2px solid var(--border-color);
+            display: flex;
+            justify-content: center;
+            padding: 1rem;
+            box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.875rem;
+        }
+
+        .nav-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .toast {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: var(--success-color);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.error {
+            background: var(--error-color);
+        }
+
+        .toast.warning {
+            background: var(--warning-color);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-primary);
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .countdown {
+            font-size: 4rem;
+            font-weight: bold;
+            text-align: center;
+            color: var(--primary-color);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: particle 1s ease-out forwards;
+        }
+
+        @keyframes particle {
+            0% {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(0) translateY(-100px);
+                opacity: 0;
+            }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0.5rem;
+            }
+            
+            .logo {
+                font-size: 2rem;
+            }
+            
+            .party-code {
+                font-size: 2rem;
+                letter-spacing: 0.25rem;
+            }
+            
+            .btn {
+                padding: 0.875rem 1.5rem;
+            }
+            
+            .btn-large {
+                padding: 1rem 2rem;
+            }
+            
+            .card {
+                padding: 1.5rem;
+            }
+            
+            .timer {
+                width: 80px;
+                height: 80px;
+                font-size: 1.5rem;
+            }
+            
+            .countdown {
+                font-size: 3rem;
+            }
+            
+            .bottom-nav {
+                padding: 0.75rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            
+            .flex {
+                flex-direction: column;
+            }
+            
+            .party-code {
+                font-size: 1.5rem;
+                letter-spacing: 0.1rem;
+            }
+            
+            .profile-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .bounce {
+            animation: bounce 0.6s ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="mainMenu" class="screen active">
+            <div class="header">
+                <div class="logo">QuizMaster</div>
+                <div class="subtitle">Multiplayer Quiz Challenge</div>
+            </div>
+            
+            <div class="card text-center">
+                <div class="grid grid-2">
+                    <button class="btn btn-large" onclick="showCreateParty()">Create Party</button>
+                    <button class="btn btn-large btn-secondary" onclick="showJoinParty()">Join Party</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="createParty" class="screen">
+            <div class="header">
+                <div class="logo">Create Party</div>
+            </div>
+            
+            <div class="card">
+                <div class="input-group">
+                    <label class="label">Number of Players</label>
+                    <select class="select" id="playerCount">
+                        <option value="2">2 Players</option>
+                        <option value="4">4 Players</option>
+                        <option value="6">6 Players</option>
+                        <option value="8">8 Players</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label class="label">Language</label>
+                    <select class="select" id="language" onchange="changeLanguage(this.value)">
+                        <option value="en">English</option>
+                        <option value="ar">Arabic</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label class="label">Quiz Category</label>
+                    <select class="select" id="category">
+                        <option value="general">General Knowledge</option>
+                        <option value="sports">Sports</option>
+                        <option value="geography">Geography</option>
+                        <option value="history">History</option>
+                        <option value="science">Science</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label class="label">Difficulty</label>
+                    <select class="select" id="difficulty">
+                        <option value="random">Random</option>
+                        <option value="easy">Easy</option>
+                        <option value="hard">Hard</option>
+                        <option value="impossible">Impossible</option>
+                    </select>
+                </div>
+                
+                <div class="flex flex-between">
+                    <button class="btn btn-secondary" onclick="showMainMenu()">Back</button>
+                    <button class="btn" onclick="createParty()">Create Party</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="joinParty" class="screen">
+            <div class="header">
+                <div class="logo">Join Party</div>
+            </div>
+            
+            <div class="card">
+                <div class="input-group">
+                    <label class="label">Party Code</label>
+                    <input type="text" class="input" id="partyCodeInput" placeholder="Enter 4-digit code" maxlength="4">
+                </div>
+                
+                <div class="flex flex-between">
+                    <button class="btn btn-secondary" onclick="showMainMenu()">Back</button>
+                    <button class="btn" onclick="joinParty()">Join Party</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="partyLobby" class="screen">
+            <div class="header">
+                <div class="logo">Party Lobby</div>
+            </div>
+            
+            <div class="card">
+                <div class="party-code" id="partyCodeDisplay"></div>
+                
+                <div class="text-center mb-3">
+                    <button class="btn btn-small" onclick="copyPartyLink()">Share Invite Link</button>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="flex flex-between mb-2">
+                        <span class="font-bold">Players</span>
+                        <span id="playerCounter">0/2</span>
+                    </div>
+                    <ul class="player-list" id="playerList"></ul>
+                </div>
+                
+                <div id="hostControls" class="hidden">
+                    <div class="flex flex-wrap">
+                        <button class="btn btn-success" onclick="startGame()" id="startGameBtn" disabled>Start Game</button>
+                        <button class="btn btn-error" onclick="leaveParty()">Leave Party</button>
+                    </div>
+                </div>
+                
+                <div id="playerControls" class="hidden">
+                    <button class="btn btn-error" onclick="leaveParty()">Leave Party</button>
+                </div>
+                
+                <div id="autoStartCountdown" class="hidden">
+                    <div class="text-center mt-3">
+                        <div class="text-large">Auto-starting in: <span id="autoStartTimer">5:00</span></div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="autoStartProgress"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="gameScreen" class="screen">
+            <div class="header">
+                <div class="flex flex-between">
+                    <div class="text-large">Question <span id="questionNumber">1</span>/10</div>
+                    <div class="text-large">Score: <span id="currentScore">0</span></div>
+                </div>
+            </div>
+            
+            <div class="timer" id="questionTimer">10</div>
+            
+            <div class="question-card">
+                <div class="difficulty-badge" id="questionDifficulty">Easy</div>
+                <div class="text-xl" id="questionText">Loading question...</div>
+            </div>
+            
+            <div id="answerPhase">
+                <div class="input-group">
+                    <input type="text" class="input" id="answerInput" placeholder="Type your answer here..." disabled>
+                </div>
+                <div class="text-center">
+                    <button class="btn" onclick="submitAnswer()" id="submitBtn" disabled>Submit Answer</button>
+                </div>
+            </div>
+            
+            <div id="optionsPhase" class="hidden">
+                <div class="text-center mb-3">
+                    <div class="text-large">Choose the correct answer:</div>
+                </div>
+                <div class="options-grid" id="optionsGrid"></div>
+            </div>
+            
+            <div id="resultPhase" class="hidden">
+                <div class="text-center">
+                    <div class="text-2xl mb-2" id="resultText">Correct!</div>
+                    <div class="text-large" id="rewardText">+5 coins, +10 XP</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="gameEnd" class="screen">
+            <div class="header">
+                <div class="logo">Game Over!</div>
+            </div>
+            
+            <div class="scoreboard">
+                <div class="text-xl text-center mb-3">Final Scores</div>
+                <div id="finalScores"></div>
+            </div>
+            
+            <div class="card text-center">
+                <div class="countdown" id="endCountdown">30</div>
+                <div class="text-large mb-3">Returning to main menu...</div>
+                <button class="btn" onclick="returnToMainMenu()">Return Now</button>
+            </div>
+        </div>
+
+        <div id="profileScreen" class="screen">
+            <div class="header">
+                <div class="logo">Profile</div>
+            </div>
+            
+            <div class="card text-center">
+                <div class="avatar" id="profileAvatar" style="width: 5rem; height: 5rem; font-size: 2rem; margin: 0 auto 1rem; cursor: pointer;" onclick="triggerAvatarUpload()" title="Click to change profile picture">U</div>
+                <input type="file" id="avatarUpload" accept="image/jpeg,image/jpg,image/png" style="display: none;" onchange="handleAvatarUpload(event)">
+                <div class="text-xl font-bold" id="profileUsername">Guest_1234</div>
+                <div class="level-badge" id="profileLevel">Level 1 - Rookie</div>
+                <div class="device-icon" id="profileDevice">📱</div>
+            </div>
+            
+            <div class="profile-stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="profileXP">0</div>
+                    <div class="stat-label">XP</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="profileLevel">1</div>
+                    <div class="stat-label">Level</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="profileCoins">0</div>
+                    <div class="stat-label">Coins</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="input-group">
+                    <label class="label">Username</label>
+                    <input type="text" class="input" id="usernameInput" placeholder="Enter username (3-12 chars)">
+                    <button class="btn mt-2" onclick="changeUsername()">Change Username</button>
+                </div>
+                
+                <div class="input-group">
+                    <label class="label">Settings</label>
+                    <div class="flex flex-wrap">
+                        <button class="btn btn-secondary btn-small" onclick="toggleDarkMode()">Toggle Dark Mode</button>
+                        <button class="btn btn-secondary btn-small" onclick="toggleAccessibility()">Accessibility Mode</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <button class="nav-btn active" onclick="showScreen('mainMenu', this)">Home</button>
+        <button class="nav-btn" onclick="showScreen('profileScreen', this)">Profile</button>
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const QUESTION_BANKS = {
+            general: {
+                easy: [
+                    {q: "What is the capital of France?", a: "paris"},
+                    {q: "How many days are in a week?", a: "7"},
+                    {q: "What color do you get when you mix red and yellow?", a: "orange"},
+                    {q: "What is 5 + 3?", a: "8"},
+                    {q: "What animal says 'moo'?", a: "cow"}
+                ],
+                hard: [
+                    {q: "What is the chemical symbol for gold?", a: "au"},
+                    {q: "In which year did World War II end?", a: "1945"},
+                    {q: "What is the largest planet in our solar system?", a: "jupiter"},
+                    {q: "Who wrote 'Romeo and Juliet'?", a: "shakespeare"},
+                    {q: "What is the square root of 144?", a: "12"}
+                ],
+                impossible: [
+                    {q: "What is the 15th element on the periodic table?", a: "phosphorus"},
+                    {q: "In what year was the Treaty of Westphalia signed?", a: "1648"},
+                    {q: "What is the name of the longest river in Asia?", a: "yangtze"},
+                    {q: "Who composed 'The Art of Fugue'?", a: "bach"},
+                    {q: "What is the atomic number of tungsten?", a: "74"}
+                ]
+            },
+            sports: {
+                easy: [
+                    {q: "How many players are on a basketball team?", a: "5"},
+                    {q: "What sport is played at Wimbledon?", a: "tennis"},
+                    {q: "How many holes are on a standard golf course?", a: "18"},
+                    {q: "What color is the center of an archery target?", a: "gold"},
+                    {q: "In which country did the Olympics originate?", a: "greece"}
+                ],
+                hard: [
+                    {q: "Who holds the record for most home runs in MLB?", a: "aaron"},
+                    {q: "What is the maximum score possible in ten-pin bowling?", a: "300"},
+                    {q: "Which country has won the most FIFA World Cups?", a: "brazil"},
+                    {q: "What is the diameter of a basketball hoop in inches?", a: "18"},
+                    {q: "In golf, what is an eagle?", a: "two under par"}
+                ],
+                impossible: [
+                    {q: "Who was the first person to run a sub-4-minute mile?", a: "bannister"},
+                    {q: "What year was the first modern Olympic Games held?", a: "1896"},
+                    {q: "How many stitches are on a baseball?", a: "108"},
+                    {q: "What is the oldest tennis tournament in the world?", a: "wimbledon"},
+                    {q: "Which boxer was known as 'The Brown Bomber'?", a: "louis"}
+                ]
+            },
+            geography: {
+                easy: [
+                    {q: "What is the largest continent?", a: "asia"},
+                    {q: "Which ocean is the largest?", a: "pacific"},
+                    {q: "What is the capital of Australia?", a: "canberra"},
+                    {q: "How many continents are there?", a: "7"},
+                    {q: "What is the longest river in the world?", a: "nile"}
+                ],
+                hard: [
+                    {q: "What is the smallest country in the world?", a: "vatican"},
+                    {q: "Which desert is the largest in the world?", a: "antarctica"},
+                    {q: "What is the deepest ocean trench?", a: "mariana"},
+                    {q: "Which country has the most time zones?", a: "france"},
+                    {q: "What is the highest waterfall in the world?", a: "angel"}
+                ],
+                impossible: [
+                    {q: "What is the second smallest country in the world?", a: "monaco"},
+                    {q: "Which country has the most natural lakes?", a: "canada"},
+                    {q: "What is the driest desert in the world?", a: "atacama"},
+                    {q: "Which city is closest to the center of the Earth?", a: "quito"},
+                    {q: "What is the most linguistically diverse country?", a: "papua new guinea"}
+                ]
+            }
+        };
+
+        const TRANSLATIONS = {
+            en: {
+                createParty: "Create Party",
+                joinParty: "Join Party",
+                numberOfPlayers: "Number of Players",
+                language: "Language",
+                quizCategory: "Quiz Category",
+                difficulty: "Difficulty",
+                back: "Back",
+                players: "Players",
+                startGame: "Start Game",
+                leaveParty: "Leave Party",
+                shareInviteLink: "Share Invite Link",
+                autoStarting: "Auto-starting in:",
+                question: "Question",
+                score: "Score",
+                typeAnswer: "Type your answer here...",
+                submitAnswer: "Submit Answer",
+                chooseCorrect: "Choose the correct answer:",
+                correct: "Correct!",
+                wrong: "Wrong!",
+                gameOver: "Game Over!",
+                finalScores: "Final Scores",
+                returningToMenu: "Returning to main menu...",
+                returnNow: "Return Now",
+                profile: "Profile",
+                username: "Username",
+                changeUsername: "Change Username",
+                settings: "Settings",
+                toggleDarkMode: "Toggle Dark Mode",
+                accessibilityMode: "Accessibility Mode",
+                home: "Home",
+                level: "Level",
+                rookie: "Rookie",
+                pro: "Pro",
+                master: "Master",
+                legend: "Legend"
+            },
+            ar: {
+                createParty: "إنشاء حفلة",
+                joinParty: "انضمام للحفلة",
+                numberOfPlayers: "عدد اللاعبين",
+                language: "اللغة",
+                quizCategory: "فئة الاختبار",
+                difficulty: "الصعوبة",
+                back: "رجوع",
+                players: "اللاعبون",
+                startGame: "ابدأ اللعبة",
+                leaveParty: "مغادرة الحفلة",
+                shareInviteLink: "مشاركة رابط الدعوة",
+                autoStarting: "البدء التلقائي خلال:",
+                question: "سؤال",
+                score: "النتيجة",
+                typeAnswer: "اكتب إجابتك هنا...",
+                submitAnswer: "إرسال الإجابة",
+                chooseCorrect: "اختر الإجابة الصحيحة:",
+                correct: "صحيح!",
+                wrong: "خطأ!",
+                gameOver: "انتهت اللعبة!",
+                finalScores: "النتائج النهائية",
+                returningToMenu: "العودة للقائمة الرئيسية...",
+                returnNow: "العودة الآن",
+                profile: "الملف الشخصي",
+                username: "اسم المستخدم",
+                changeUsername: "تغيير اسم المستخدم",
+                settings: "الإعدادات",
+                toggleDarkMode: "تبديل الوضع المظلم",
+                accessibilityMode: "وضع إمكانية الوصول",
+                home: "الرئيسية",
+                level: "المستوى",
+                rookie: "مبتدئ",
+                pro: "محترف",
+                master: "خبير",
+                legend: "أسطورة"
+            }
+        };
+
+        const INAPPROPRIATE_WORDS = ["admin", "test", "fuck", "shit", "damn", "hell", "ass", "bitch", "crap", "bastard", "whore", "slut", "gay", "fag", "nigga", "nigger", "hitler", "nazi", "isis", "terrorist", "rape", "sex", "porn", "dick", "cock", "pussy", "tits", "boobs", "asshole", "motherfucker", "cunt", "faggot", "retard", "stupid", "idiot", "loser", "noob", "bot", "cheat", "hacker", "owner", "moderator", "mod", "god", "jesus", "allah", "root", "system", "null", "undefined"];
+        const DEVICE_ICONS = {
+            iPhone: "📱",
+            iPad: "📱",
+            Android: "📱",
+            Windows: "💻",
+            Mac: "💻",
+            Linux: "💻"
+        };
+
+        let gameState = {
+            currentScreen: 'mainMenu',
+            currentParty: null,
+            isHost: false,
+            currentPlayer: null,
+            players: [],
+            currentQuestion: 0,
+            questions: [],
+            gameStarted: false,
+            answers: {},
+            score: 0,
+            timer: null,
+            language: 'en',
+            settings: {
+                darkMode: false,
+                accessibility: false
+            }
+        };
+
+        let userData = {
+            username: '',
+            xp: 0,
+            level: 1,
+            coins: 0,
+            usernameChangeAttempts: 0,
+            usernameChangeBan: 0,
+            avatar: null
+        };
+
+        function init() {
+            loadUserData();
+            setupEventListeners();
+            checkURLParams();
+            updateProfile();
+            playSound('menu');
+        }
+
+        function loadUserData() {
+            const saved = localStorage.getItem('quizMasterUser');
+            if (saved) {
+                userData = {...userData, ...JSON.parse(saved)};
+            }
+            if (!userData.username) {
+                userData.username = `Guest_${Math.floor(Math.random() * 9999)}`;
+            }
+            applySettings();
+        }
+
+        function saveUserData() {
+            localStorage.setItem('quizMasterUser', JSON.stringify(userData));
+        }
+
+        function applySettings() {
+            document.body.setAttribute('data-theme', userData.settings?.darkMode ? 'dark' : 'light');
+            document.body.setAttribute('data-accessibility', userData.settings?.accessibility ? 'true' : 'false');
+            document.body.setAttribute('data-rtl', gameState.language === 'ar' ? 'true' : 'false');
+        }
+
+        function setupEventListeners() {
+            document.getElementById('partyCodeInput').addEventListener('input', function(e) {
+                e.target.value = e.target.value.replace(/[^0-9]/g, '').substring(0, 4);
+            });
+
+            document.getElementById('answerInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.target.disabled) {
+                    submitAnswer();
+                }
+            });
+
+            document.getElementById('usernameInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    changeUsername();
+                }
+            });
+
+            window.addEventListener('beforeunload', function() {
+                if (gameState.currentParty) {
+                    leaveParty();
+                }
+            });
+        }
+
+        function checkURLParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const joinCode = urlParams.get('join');
+            if (joinCode && joinCode.length === 4) {
+                document.getElementById('partyCodeInput').value = joinCode;
+                showJoinParty();
+            }
+        }
+
+        function generatePartyCode() {
+            return Math.floor(1000 + Math.random() * 9000).toString();
+        }
+
+        function showScreen(screenName, navBtn = null) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenName).classList.add('active');
+            gameState.currentScreen = screenName;
+
+            if (navBtn) {
+                document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+                navBtn.classList.add('active');
+            }
+
+            playSound('menu');
+        }
+
+        function showMainMenu() {
+            showScreen('mainMenu');
+        }
+
+        function showCreateParty() {
+            showScreen('createParty');
+        }
+
+        function showJoinParty() {
+            showScreen('joinParty');
+        }
+
+        function createParty() {
+            const playerCount = parseInt(document.getElementById('playerCount').value);
+            const language = document.getElementById('language').value;
+            const category = document.getElementById('category').value;
+            const difficulty = document.getElementById('difficulty').value;
+
+            const partyCode = generatePartyCode();
+            const party = {
+                code: partyCode,
+                host: userData.username,
+                players: [{
+                    username: userData.username,
+                    isHost: true,
+                    device: getDeviceInfo(),
+                    avatar: userData.avatar && userData.avatar.startsWith('data:image/') ? userData.avatar : userData.username.charAt(0).toUpperCase()
+                }],
+                maxPlayers: playerCount,
+                language: language,
+                category: category,
+                difficulty: difficulty,
+                created: Date.now(),
+                started: false
+            };
+
+            gameState.currentParty = party;
+            gameState.isHost = true;
+            gameState.language = language;
+            applySettings();
+
+            document.getElementById('partyCodeDisplay').textContent = partyCode;
+            updatePlayerList();
+            showScreen('partyLobby');
+            
+            document.getElementById('hostControls').classList.remove('hidden');
+            document.getElementById('playerControls').classList.add('hidden');
+
+            startAutoStartTimer();
+            playSound('success');
+            showToast('Party created successfully!');
+        }
+
+        function joinParty() {
+            const partyCode = document.getElementById('partyCodeInput').value;
+            if (partyCode.length !== 4) {
+                showToast('Please enter a valid 4-digit party code', 'error');
+                return;
+            }
+
+            const party = getPartyByCode(partyCode);
+            if (!party) {
+                showToast('Party not found or expired', 'error');
+                return;
+            }
+
+            if (party.players.length >= party.maxPlayers) {
+                showToast('Party is full', 'error');
+                return;
+            }
+
+            if (party.players.some(p => p.username === userData.username)) {
+                showToast('Username already taken in this party', 'error');
+                return;
+            }
+
+            const player = {
+                username: userData.username,
+                isHost: false,
+                device: getDeviceInfo(),
+                avatar: userData.avatar && userData.avatar.startsWith('data:image/') ? userData.avatar : userData.username.charAt(0).toUpperCase()
+            };
+
+            party.players.push(player);
+            gameState.currentParty = party;
+            gameState.isHost = false;
+            gameState.language = party.language;
+            applySettings();
+
+            document.getElementById('partyCodeDisplay').textContent = partyCode;
+            updatePlayerList();
+            showScreen('partyLobby');
+            
+            document.getElementById('hostControls').classList.add('hidden');
+            document.getElementById('playerControls').classList.remove('hidden');
+
+            playSound('success');
+            showToast('Joined party successfully!');
+        }
+
+        function getPartyByCode(code) {
+            if (gameState.currentParty && gameState.currentParty.code === code) {
+                return gameState.currentParty;
+            }
+            return null;
+        }
+
+        function updatePlayerList() {
+            const playerList = document.getElementById('playerList');
+            const playerCounter = document.getElementById('playerCounter');
+            const startGameBtn = document.getElementById('startGameBtn');
+
+            playerList.innerHTML = '';
+            gameState.currentParty.players.forEach(player => {
+                const li = document.createElement('li');
+                li.className = 'player-item';
+                
+                const avatarDiv = document.createElement('div');
+                avatarDiv.className = 'avatar';
+                
+                if (player.avatar && player.avatar.startsWith('data:image/')) {
+                    avatarDiv.style.backgroundImage = `url(${player.avatar})`;
+                    avatarDiv.style.backgroundSize = 'cover';
+                    avatarDiv.style.backgroundPosition = 'center';
+                    avatarDiv.textContent = '';
+                } else {
+                    avatarDiv.textContent = player.avatar;
+                }
+                
+                li.innerHTML = `
+                    <div>
+                        <div class="font-bold">${player.username}</div>
+                        <div class="text-secondary">${player.isHost ? 'Host' : 'Player'}</div>
+                    </div>
+                    <div class="device-icon">${DEVICE_ICONS[player.device] || '💻'}</div>
+                `;
+                li.insertBefore(avatarDiv, li.firstChild);
+                playerList.appendChild(li);
+            });
+
+            playerCounter.textContent = `${gameState.currentParty.players.length}/${gameState.currentParty.maxPlayers}`;
+            
+            if (startGameBtn) {
+                startGameBtn.disabled = gameState.currentParty.players.length < 2;
+            }
+        }
+
+        function startAutoStartTimer() {
+            let timeLeft = 300;
+            const autoStartTimer = document.getElementById('autoStartTimer');
+            const autoStartProgress = document.getElementById('autoStartProgress');
+            const autoStartCountdown = document.getElementById('autoStartCountdown');
+
+            autoStartCountdown.classList.remove('hidden');
+
+            const interval = setInterval(() => {
+                timeLeft--;
+                autoStartTimer.textContent = formatTime(timeLeft);
+                autoStartProgress.style.width = `${((300 - timeLeft) / 300) * 100}%`;
+
+                if (timeLeft <= 0 || gameState.gameStarted) {
+                    clearInterval(interval);
+                    if (!gameState.gameStarted && gameState.currentParty.players.length >= 2) {
+                        startGame();
+                    }
+                }
+            }, 1000);
+        }
+
+        function startGame() {
+            if (gameState.currentParty.players.length < 2) {
+                showToast('Need at least 2 players to start', 'error');
+                return;
+            }
+
+            gameState.gameStarted = true;
+            gameState.currentQuestion = 0;
+            gameState.score = 0;
+            generateQuestions();
+            showScreen('gameScreen');
+            startQuestion();
+            playSound('gameStart');
+        }
+
+        function generateQuestions() {
+            const category = gameState.currentParty.category;
+            const difficulty = gameState.currentParty.difficulty;
+            const bank = QUESTION_BANKS[category] || QUESTION_BANKS.general;
+            
+            gameState.questions = [];
+            
+            for (let i = 0; i < 10; i++) {
+                let selectedDifficulty = difficulty;
+                if (difficulty === 'random') {
+                    const difficulties = ['easy', 'hard', 'impossible'];
+                    selectedDifficulty = difficulties[Math.floor(Math.random() * difficulties.length)];
+                }
+                
+                const questionBank = bank[selectedDifficulty] || bank.easy;
+                const question = questionBank[Math.floor(Math.random() * questionBank.length)];
+                
+                gameState.questions.push({
+                    ...question,
+                    difficulty: selectedDifficulty
+                });
+            }
+        }
+
+        function startQuestion() {
+            if (gameState.currentQuestion >= gameState.questions.length) {
+                endGame();
+                return;
+            }
+
+            const question = gameState.questions[gameState.currentQuestion];
+            document.getElementById('questionNumber').textContent = gameState.currentQuestion + 1;
+            document.getElementById('currentScore').textContent = gameState.score;
+            document.getElementById('questionText').textContent = question.q;
+            document.getElementById('questionDifficulty').textContent = question.difficulty.charAt(0).toUpperCase() + question.difficulty.slice(1);
+            document.getElementById('questionDifficulty').className = `difficulty-badge difficulty-${question.difficulty}`;
+
+            document.getElementById('answerPhase').classList.remove('hidden');
+            document.getElementById('optionsPhase').classList.add('hidden');
+            document.getElementById('resultPhase').classList.add('hidden');
+
+            const answerInput = document.getElementById('answerInput');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            answerInput.value = '';
+            answerInput.disabled = true;
+            submitBtn.disabled = true;
+
+            setTimeout(() => {
+                answerInput.disabled = false;
+                submitBtn.disabled = false;
+                answerInput.focus();
+            }, 2000);
+
+            startTimer(10);
+        }
+
+        function startTimer(seconds) {
+            let timeLeft = seconds;
+            const timerElement = document.getElementById('questionTimer');
+            
+            const updateTimer = () => {
+                timerElement.textContent = timeLeft;
+                const percentage = (timeLeft / seconds) * 360;
+                timerElement.style.background = `conic-gradient(var(--primary-color) ${percentage}deg, var(--bg-secondary) ${percentage}deg)`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(gameState.timer);
+                    timeUp();
+                } else {
+                    timeLeft--;
+                }
+            };
+
+            updateTimer();
+            gameState.timer = setInterval(updateTimer, 1000);
+        }
+
+        function submitAnswer() {
+            const answer = document.getElementById('answerInput').value.trim().toLowerCase();
+            const question = gameState.questions[gameState.currentQuestion];
+            
+            if (!answer) {
+                showToast('Please enter an answer', 'warning');
+                return;
+            }
+
+            clearInterval(gameState.timer);
+            
+            const isCorrect = answer === question.a.toLowerCase();
+            
+            if (isCorrect) {
+                handleCorrectAnswer();
+            } else {
+                showOptionsPhase();
+            }
+        }
+
+        function timeUp() {
+            const answerInput = document.getElementById('answerInput');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            answerInput.disabled = true;
+            submitBtn.disabled = true;
+            
+            if (answerInput.value.trim()) {
+                submitAnswer();
+            } else {
+                showOptionsPhase();
+            }
+        }
+
+        function handleCorrectAnswer() {
+            const question = gameState.questions[gameState.currentQuestion];
+            const coinReward = getRewardForDifficulty(question.difficulty);
+            const xpReward = coinReward * 2;
+
+            gameState.score += coinReward;
+            userData.coins += coinReward;
+            userData.xp += xpReward;
+            
+            checkLevelUp();
+            saveUserData();
+
+            document.getElementById('resultText').textContent = TRANSLATIONS[gameState.language].correct;
+            document.getElementById('resultText').style.color = 'var(--success-color)';
+            document.getElementById('rewardText').textContent = `+${coinReward} coins, +${xpReward} XP`;
+
+            document.getElementById('answerPhase').classList.add('hidden');
+            document.getElementById('resultPhase').classList.remove('hidden');
+
+            playSound('correct');
+            createParticles();
+
+            setTimeout(() => {
+                nextQuestion();
+            }, 2000);
+        }
+
+        function showOptionsPhase() {
+            const question = gameState.questions[gameState.currentQuestion];
+            const options = generateOptions(question);
+            
+            document.getElementById('answerPhase').classList.add('hidden');
+            document.getElementById('optionsPhase').classList.remove('hidden');
+            
+            const optionsGrid = document.getElementById('optionsGrid');
+            optionsGrid.innerHTML = '';
+            
+            options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'option-btn';
+                button.textContent = option;
+                button.onclick = () => selectOption(option, question.a);
+                optionsGrid.appendChild(button);
+            });
+        }
+
+        function generateOptions(question) {
+            const correctAnswer = question.a;
+            const wrongAnswers = [
+                'Wrong Answer 1',
+                'Wrong Answer 2', 
+                'Wrong Answer 3',
+                'Wrong Answer 4'
+            ];
+            
+            const options = [correctAnswer, ...wrongAnswers.slice(0, 4)];
+            return shuffleArray(options);
+        }
+
+        function selectOption(selected, correct) {
+            const buttons = document.querySelectorAll('.option-btn');
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                if (btn.textContent === correct) {
+                    btn.classList.add('correct');
+                } else if (btn.textContent === selected && selected !== correct) {
+                    btn.classList.add('wrong');
+                }
+            });
+
+            const isCorrect = selected === correct;
+            
+            setTimeout(() => {
+                if (isCorrect) {
+                    handleCorrectAnswer();
+                } else {
+                    handleWrongAnswer();
+                }
+            }, 1000);
+        }
+
+        function handleWrongAnswer() {
+            document.getElementById('resultText').textContent = TRANSLATIONS[gameState.language].wrong;
+            document.getElementById('resultText').style.color = 'var(--error-color)';
+            document.getElementById('rewardText').textContent = '+0 coins, +0 XP';
+
+            document.getElementById('optionsPhase').classList.add('hidden');
+            document.getElementById('resultPhase').classList.remove('hidden');
+
+            playSound('wrong');
+
+            setTimeout(() => {
+                nextQuestion();
+            }, 2000);
+        }
+
+        function nextQuestion() {
+            gameState.currentQuestion++;
+            startQuestion();
+        }
+
+        function endGame() {
+            showScreen('gameEnd');
+            displayFinalScores();
+            startEndCountdown();
+            playSound('gameEnd');
+        }
+
+        function displayFinalScores() {
+            const finalScores = document.getElementById('finalScores');
+            const players = [...gameState.currentParty.players];
+            
+            players.forEach(player => {
+                if (player.username === userData.username) {
+                    player.score = gameState.score;
+                } else {
+                    player.score = Math.floor(Math.random() * 50) + 10;
+                }
+            });
+
+            players.sort((a, b) => b.score - a.score);
+
+            finalScores.innerHTML = '';
+            players.forEach((player, index) => {
+                const div = document.createElement('div');
+                div.className = `score-item ${index === 0 ? 'winner' : ''}`;
+                div.innerHTML = `
+                    <div class="flex">
+                        <div class="avatar">${player.avatar}</div>
+                        <div>
+                            <div class="font-bold">${player.username}</div>
+                            <div>${index === 0 ? '🏆 Winner!' : `#${index + 1}`}</div>
+                        </div>
+                    </div>
+                    <div class="text-xl font-bold">${player.score}</div>
+                `;
+                finalScores.appendChild(div);
+            });
+        }
+
+        function startEndCountdown() {
+            let timeLeft = 30;
+            const countdown = document.getElementById('endCountdown');
+            
+            const interval = setInterval(() => {
+                countdown.textContent = timeLeft;
+                timeLeft--;
+                
+                if (timeLeft < 0) {
+                    clearInterval(interval);
+                    returnToMainMenu();
+                }
+            }, 1000);
+        }
+
+        function returnToMainMenu() {
+            gameState.currentParty = null;
+            gameState.isHost = false;
+            gameState.gameStarted = false;
+            gameState.currentQuestion = 0;
+            gameState.score = 0;
+            showScreen('mainMenu');
+        }
+
+        function leaveParty() {
+            if (gameState.currentParty) {
+                gameState.currentParty = null;
+                gameState.isHost = false;
+                gameState.gameStarted = false;
+                showScreen('mainMenu');
+                playSound('menu');
+                showToast('Left party');
+            }
+        }
+
+        function copyPartyLink() {
+            const link = `${window.location.origin}${window.location.pathname}?join=${gameState.currentParty.code}`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Join my Quiz Party!',
+                    text: `Join my quiz party with code: ${gameState.currentParty.code}`,
+                    url: link
+                });
+            } else if (navigator.clipboard) {
+                navigator.clipboard.writeText(link).then(() => {
+                    showToast('Invite link copied to clipboard!');
+                });
+            } else {
+                const textarea = document.createElement('textarea');
+                textarea.value = link;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showToast('Invite link copied to clipboard!');
+            }
+        }
+
+        function changeUsername() {
+            const newUsername = document.getElementById('usernameInput').value.trim();
+            
+            if (userData.usernameChangeBan && userData.usernameChangeBan > Date.now()) {
+                const timeLeft = Math.ceil((userData.usernameChangeBan - Date.now()) / 1000);
+                if (timeLeft > 3600) {
+                    const hoursLeft = Math.ceil(timeLeft / 3600);
+                    showToast(`Username change blocked for ${hoursLeft} more hours`, 'error');
+                } else {
+                    showToast(`Username change blocked for ${formatTime(timeLeft)} more`, 'error');
+                }
+                return;
+            }
+            
+            if (!validateUsername(newUsername)) {
+                return;
+            }
+
+            if (isInappropriateUsername(newUsername)) {
+                handleInappropriateUsername();
+                return;
+            }
+
+            userData.username = newUsername;
+            saveUserData();
+            updateProfile();
+            showToast('Username changed successfully!');
+            document.getElementById('usernameInput').value = '';
+        }
+
+        function validateUsername(username) {
+            if (username.length < 3 || username.length > 12) {
+                showToast('Username must be 3-12 characters', 'error');
+                return false;
+            }
+
+            if (!/^[a-zA-Z\u0600-\u06FF0-9_]+$/.test(username)) {
+                showToast('Username can only contain letters, numbers, and underscores', 'error');
+                return false;
+            }
+
+            return true;
+        }
+
+        function isInappropriateUsername(username) {
+            return INAPPROPRIATE_WORDS.some(word => 
+                username.toLowerCase().includes(word.toLowerCase())
+            );
+        }
+
+        function handleInappropriateUsername() {
+            userData.usernameChangeAttempts++;
+            saveUserData();
+
+            if (userData.usernameChangeAttempts === 1) {
+                showToast('Warning: Inappropriate username detected', 'warning');
+            } else if (userData.usernameChangeAttempts === 2) {
+                userData.usernameChangeBan = Date.now() + (5 * 60 * 1000);
+                showToast('5-minute cooldown applied for inappropriate username', 'error');
+            } else if (userData.usernameChangeAttempts === 3) {
+                userData.usernameChangeBan = Date.now() + (24 * 60 * 60 * 1000);
+                showToast('24-hour cooldown applied for inappropriate username', 'error');
+            } else {
+                userData.usernameChangeBan = Date.now() + (365 * 24 * 60 * 60 * 1000);
+                showToast('Username changes permanently banned', 'error');
+            }
+        }
+
+        function updateProfile() {
+            document.getElementById('profileUsername').textContent = userData.username;
+            document.getElementById('profileXP').textContent = userData.xp;
+            document.getElementById('profileLevel').textContent = userData.level;
+            document.getElementById('profileCoins').textContent = userData.coins;
+            
+            const avatar = document.getElementById('profileAvatar');
+            if (userData.avatar && userData.avatar.startsWith('data:image/')) {
+                avatar.style.backgroundImage = `url(${userData.avatar})`;
+                avatar.style.backgroundSize = 'cover';
+                avatar.style.backgroundPosition = 'center';
+                avatar.textContent = '';
+            } else {
+                avatar.style.backgroundImage = '';
+                avatar.textContent = userData.avatar || userData.username.charAt(0).toUpperCase();
+            }
+            
+            const levelName = getLevelName(userData.level);
+            document.getElementById('profileLevel').textContent = `Level ${userData.level} - ${levelName}`;
+            
+            const deviceIcon = document.getElementById('profileDevice');
+            deviceIcon.textContent = DEVICE_ICONS[getDeviceInfo()] || '💻';
+        }
+
+        function triggerAvatarUpload() {
+            document.getElementById('avatarUpload').click();
+        }
+
+        function handleAvatarUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (file.size > 2 * 1024 * 1024) {
+                showToast('Image too large. Please use an image under 2MB', 'error');
+                return;
+            }
+
+            if (!file.type.match(/image\/(jpeg|jpg|png)/)) {
+                showToast('Please upload a JPG or PNG image', 'error');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                userData.avatar = e.target.result;
+                saveUserData();
+                updateProfile();
+                showToast('Profile picture updated successfully!');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function checkLevelUp() {
+            const newLevel = calculateLevel(userData.xp);
+            if (newLevel > userData.level) {
+                userData.level = newLevel;
+                playSound('levelUp');
+                showToast(`Level up! You are now level ${newLevel}!`, 'success');
+                createParticles();
+            }
+        }
+
+        function calculateLevel(xp) {
+            let level = 1;
+            let requiredXP = 100;
+            let totalXP = 0;
+            
+            while (totalXP + requiredXP <= xp) {
+                totalXP += requiredXP;
+                level++;
+                requiredXP = Math.floor(requiredXP * (1.15 + (level * 0.05)));
+            }
+            
+            return level;
+        }
+
+        function getLevelName(level) {
+            if (level < 10) return TRANSLATIONS[gameState.language].rookie;
+            if (level < 25) return TRANSLATIONS[gameState.language].pro;
+            if (level < 50) return TRANSLATIONS[gameState.language].master;
+            return TRANSLATIONS[gameState.language].legend;
+        }
+
+        function getRewardForDifficulty(difficulty) {
+            switch (difficulty) {
+                case 'easy': return 5;
+                case 'hard': return 7;
+                case 'impossible': return 9;
+                default: return 5;
+            }
+        }
+
+        function getDeviceInfo() {
+            const userAgent = navigator.userAgent;
+            if (/iPhone|iPad|iPod/.test(userAgent)) return 'iPhone';
+            if (/Android/.test(userAgent)) return 'Android';
+            if (/Windows/.test(userAgent)) return 'Windows';
+            if (/Mac/.test(userAgent)) return 'Mac';
+            if (/Linux/.test(userAgent)) return 'Linux';
+            return 'Unknown';
+        }
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+
+        function toggleDarkMode() {
+            userData.settings = userData.settings || {};
+            userData.settings.darkMode = !userData.settings.darkMode;
+            saveUserData();
+            applySettings();
+            showToast(`Dark mode ${userData.settings.darkMode ? 'enabled' : 'disabled'}`);
+        }
+
+        function toggleAccessibility() {
+            userData.settings = userData.settings || {};
+            userData.settings.accessibility = !userData.settings.accessibility;
+            saveUserData();
+            applySettings();
+            showToast(`Accessibility mode ${userData.settings.accessibility ? 'enabled' : 'disabled'}`);
+        }
+
+        function changeLanguage(lang) {
+            gameState.language = lang;
+            applySettings();
+        }
+
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        function createParticles() {
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * window.innerWidth + 'px';
+                particle.style.top = Math.random() * window.innerHeight + 'px';
+                particle.style.backgroundColor = `hsl(${Math.random() * 360}, 70%, 60%)`;
+                document.body.appendChild(particle);
+
+                setTimeout(() => {
+                    particle.remove();
+                }, 1000);
+            }
+        }
+
+        function playSound(type) {
+            if (!window.AudioContext && !window.webkitAudioContext) return;
+
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            const frequencies = {
+                menu: 440,
+                success: 523,
+                correct: 659,
+                wrong: 220,
+                levelUp: 784,
+                gameStart: 330,
+                gameEnd: 294
+            };
+
+            oscillator.frequency.setValueAtTime(frequencies[type] || 440, audioContext.currentTime);
+            oscillator.type = 'sine';
+
+            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.5);
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
