@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Multiplayer Quiz Game</title>
+    <script src="/socket.io/socket.io.js"></script>
     <style>
         * {
             margin: 0;
@@ -1098,7 +1099,10 @@
             settings: {
                 darkMode: false,
                 accessibility: false
-            }
+            },
+            socket: null,
+            reconnectAttempts: 0,
+            maxReconnectAttempts: 5
         };
 
         let userData = {
@@ -1116,7 +1120,97 @@
             setupEventListeners();
             checkURLParams();
             updateProfile();
+            initializeSocket();
             playSound('menu');
+        }
+
+        function initializeSocket() {
+            if (gameState.socket) {
+                gameState.socket.disconnect();
+            }
+
+            gameState.socket = io();
+            
+            gameState.socket.on('connect', () => {
+                console.log('Connected to server');
+                gameState.reconnectAttempts = 0;
+            });
+
+            gameState.socket.on('disconnect', () => {
+                console.log('Disconnected from server');
+                if (gameState.reconnectAttempts < gameState.maxReconnectAttempts) {
+                    gameState.reconnectAttempts++;
+                    showToast(`Connection lost. Reconnecting... (${gameState.reconnectAttempts}/${gameState.maxReconnectAttempts})`, 'warning');
+                } else {
+                    showToast('Connection lost. Please refresh the page.', 'error');
+                }
+            });
+
+            gameState.socket.on('partyCreated', ({ code, party }) => {
+                gameState.currentParty = party;
+                gameState.isHost = true;
+                gameState.language = party.language;
+                applySettings();
+
+                document.getElementById('partyCodeDisplay').textContent = code;
+                updatePlayerList();
+                showScreen('partyLobby');
+                
+                document.getElementById('hostControls').classList.remove('hidden');
+                document.getElementById('playerControls').classList.add('hidden');
+
+                startAutoStartTimer();
+                playSound('success');
+                showToast('Party created successfully!');
+            });
+
+            gameState.socket.on('joinedParty', ({ party }) => {
+                gameState.currentParty = party;
+                gameState.isHost = false;
+                gameState.language = party.language;
+                applySettings();
+
+                document.getElementById('partyCodeDisplay').textContent = party.code;
+                updatePlayerList();
+                showScreen('partyLobby');
+                
+                document.getElementById('hostControls').classList.add('hidden');
+                document.getElementById('playerControls').classList.remove('hidden');
+
+                playSound('success');
+                showToast('Joined party successfully!');
+            });
+
+            gameState.socket.on('joinError', (message) => {
+                showToast(message, 'error');
+            });
+
+            gameState.socket.on('playerJoined', ({ player, party }) => {
+                gameState.currentParty = party;
+                updatePlayerList();
+                showToast(`${player.username} joined the party!`);
+            });
+
+            gameState.socket.on('playerLeft', ({ party }) => {
+                gameState.currentParty = party;
+                updatePlayerList();
+            });
+
+            gameState.socket.on('gameStarted', ({ party }) => {
+                gameState.currentParty = party;
+                gameState.gameStarted = true;
+                gameState.currentQuestion = 0;
+                gameState.score = 0;
+                generateQuestions();
+                showScreen('gameScreen');
+                startQuestion();
+                playSound('gameStart');
+            });
+
+            gameState.socket.on('partyExpired', () => {
+                showToast('Party has expired', 'error');
+                returnToMainMenu();
+            });
         }
 
         function loadUserData() {
@@ -1210,39 +1304,22 @@
             const category = document.getElementById('category').value;
             const difficulty = document.getElementById('difficulty').value;
 
-            const partyCode = generatePartyCode();
-            const party = {
-                code: partyCode,
+            if (!gameState.socket || !gameState.socket.connected) {
+                showToast('Not connected to server. Please refresh the page.', 'error');
+                return;
+            }
+
+            const partyData = {
                 host: userData.username,
-                players: [{
-                    username: userData.username,
-                    isHost: true,
-                    device: getDeviceInfo(),
-                    avatar: userData.avatar && userData.avatar.startsWith('data:image/') ? userData.avatar : userData.username.charAt(0).toUpperCase()
-                }],
+                hostDevice: getDeviceInfo(),
+                hostAvatar: userData.avatar && userData.avatar.startsWith('data:image/') ? userData.avatar : userData.username.charAt(0).toUpperCase(),
                 maxPlayers: playerCount,
                 language: language,
                 category: category,
-                difficulty: difficulty,
-                created: Date.now(),
-                started: false
+                difficulty: difficulty
             };
 
-            gameState.currentParty = party;
-            gameState.isHost = true;
-            gameState.language = language;
-            applySettings();
-
-            document.getElementById('partyCodeDisplay').textContent = partyCode;
-            updatePlayerList();
-            showScreen('partyLobby');
-            
-            document.getElementById('hostControls').classList.remove('hidden');
-            document.getElementById('playerControls').classList.add('hidden');
-
-            startAutoStartTimer();
-            playSound('success');
-            showToast('Party created successfully!');
+            gameState.socket.emit('createParty', partyData);
         }
 
         function joinParty() {
@@ -1252,52 +1329,22 @@
                 return;
             }
 
-            const party = getPartyByCode(partyCode);
-            if (!party) {
-                showToast('Party not found or expired', 'error');
+            if (!gameState.socket || !gameState.socket.connected) {
+                showToast('Not connected to server. Please refresh the page.', 'error');
                 return;
             }
 
-            if (party.players.length >= party.maxPlayers) {
-                showToast('Party is full', 'error');
-                return;
-            }
-
-            if (party.players.some(p => p.username === userData.username)) {
-                showToast('Username already taken in this party', 'error');
-                return;
-            }
-
-            const player = {
+            const joinData = {
+                code: partyCode,
                 username: userData.username,
-                isHost: false,
                 device: getDeviceInfo(),
                 avatar: userData.avatar && userData.avatar.startsWith('data:image/') ? userData.avatar : userData.username.charAt(0).toUpperCase()
             };
 
-            party.players.push(player);
-            gameState.currentParty = party;
-            gameState.isHost = false;
-            gameState.language = party.language;
-            applySettings();
-
-            document.getElementById('partyCodeDisplay').textContent = partyCode;
-            updatePlayerList();
-            showScreen('partyLobby');
-            
-            document.getElementById('hostControls').classList.add('hidden');
-            document.getElementById('playerControls').classList.remove('hidden');
-
-            playSound('success');
-            showToast('Joined party successfully!');
+            gameState.socket.emit('joinParty', joinData);
         }
 
-        function getPartyByCode(code) {
-            if (gameState.currentParty && gameState.currentParty.code === code) {
-                return gameState.currentParty;
-            }
-            return null;
-        }
+
 
         function updatePlayerList() {
             const playerList = document.getElementById('playerList');
@@ -1362,18 +1409,22 @@
         }
 
         function startGame() {
+            if (!gameState.isHost) {
+                showToast('Only the host can start the game', 'error');
+                return;
+            }
+
             if (gameState.currentParty.players.length < 2) {
                 showToast('Need at least 2 players to start', 'error');
                 return;
             }
 
-            gameState.gameStarted = true;
-            gameState.currentQuestion = 0;
-            gameState.score = 0;
-            generateQuestions();
-            showScreen('gameScreen');
-            startQuestion();
-            playSound('gameStart');
+            if (!gameState.socket || !gameState.socket.connected) {
+                showToast('Not connected to server. Please refresh the page.', 'error');
+                return;
+            }
+
+            gameState.socket.emit('startGame', gameState.currentParty.code);
         }
 
         function generateQuestions() {
@@ -1653,7 +1704,8 @@
         }
 
         function leaveParty() {
-            if (gameState.currentParty) {
+            if (gameState.currentParty && gameState.socket) {
+                gameState.socket.emit('leaveParty', gameState.currentParty.code);
                 gameState.currentParty = null;
                 gameState.isHost = false;
                 gameState.gameStarted = false;
