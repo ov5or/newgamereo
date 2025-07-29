@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multiplayer Quiz Game</title>
-    <script src="/socket.io/socket.io.js"></script>
+    <title>🧠 QuizMaster</title>
+
     <style>
         * {
             margin: 0;
@@ -729,8 +729,15 @@
 
         .hero-subtitle {
             font-size: 1.5rem;
-            margin-bottom: 2rem;
+            margin-bottom: 0.5rem;
             opacity: 0.9;
+        }
+
+        .hero-credit {
+            font-size: 0.875rem;
+            opacity: 0.7;
+            font-style: italic;
+            margin-bottom: 2rem;
         }
 
         .hero-stats {
@@ -947,6 +954,7 @@
             <div class="hero-section">
                 <div class="hero-logo">🧠 QuizMaster</div>
                 <div class="hero-subtitle">Ultimate Multiplayer Quiz Experience</div>
+                <div class="hero-credit">by Omed</div>
                 <div class="hero-stats">
                     <div class="stat-item">
                         <div class="stat-number" id="onlineCount">...</div>
@@ -978,11 +986,11 @@
                         <div class="btn-desc">Enter with party code</div>
                     </div>
                 </button>
-                <button class="btn btn-hero btn-accent" onclick="showQuickPlay()">
-                    <div class="btn-icon">⚡</div>
+                <button class="btn btn-hero btn-accent" onclick="startPracticeMode()">
+                    <div class="btn-icon">🎯</div>
                     <div class="btn-text">
-                        <div class="btn-title">Quick Play</div>
-                        <div class="btn-desc">Join random game instantly</div>
+                        <div class="btn-title">Practice Mode</div>
+                        <div class="btn-desc">Play solo to improve skills</div>
                     </div>
                 </button>
                 <button class="btn btn-hero btn-special" onclick="showLeaderboard()">
@@ -1459,20 +1467,29 @@
             playSound('menu');
         }
 
+        // Frontend-only mode for Vercel deployment
         function initializeSocket() {
-            if (gameState.socket) {
-                gameState.socket.disconnect();
-            }
-
-            const socketOptions = {
-                transports: ['websocket', 'polling'],
-                timeout: 5000,
-                reconnection: true,
-                reconnectionAttempts: 5,
-                reconnectionDelay: 1000
+            // Set connected status immediately for frontend-only mode
+            updateConnectionStatus(true);
+            
+            // Simulate realistic server stats
+            const stats = {
+                onlineUsers: Math.floor(Math.random() * 45) + 20,
+                gamesToday: Math.floor(Math.random() * 120) + 60,
+                activeParties: Math.floor(Math.random() * 10) + 5,
+                totalGames: Math.floor(Math.random() * 800) + 400
             };
-
-            gameState.socket = io(socketOptions);
+            updateServerStats(stats);
+            
+            // Update stats periodically for dynamic feel
+            setInterval(() => {
+                const change = Math.floor(Math.random() * 6) - 2;
+                stats.onlineUsers = Math.max(15, stats.onlineUsers + change);
+                updateServerStats(stats);
+            }, 12000);
+            
+            console.log('Frontend-only mode initialized');
+        }
             
             gameState.socket.on('connect', () => {
                 console.log('Connected to server');
@@ -1612,9 +1629,41 @@
         }
 
         function updateServerStats(stats) {
-            document.getElementById('onlineCount').textContent = stats.onlineUsers || '...';
-            document.getElementById('gamesPlayed').textContent = stats.gamesToday || '0';
-            document.getElementById('activeParties').textContent = stats.activeParties || '0';
+            if (document.getElementById('onlineCount')) {
+                document.getElementById('onlineCount').textContent = stats.onlineUsers || '...';
+            }
+            if (document.getElementById('gamesPlayed')) {
+                document.getElementById('gamesPlayed').textContent = stats.gamesToday || '0';
+            }
+            if (document.getElementById('activeParties')) {
+                document.getElementById('activeParties').textContent = stats.activeParties || '0';
+            }
+        }
+
+        function startPracticeMode() {
+            gameState.isPracticeMode = true;
+            gameState.currentPlayer = {
+                username: userData.username,
+                id: 'practice-player',
+                isHost: true,
+                device: getDeviceInfo(),
+                avatar: userData.avatar
+            };
+            gameState.language = 'en';
+            gameState.category = 'general';
+            gameState.difficulty = 'random';
+            
+            showToast('Starting Practice Mode...', 'success');
+            playSound('gameStart');
+            
+            // Generate practice questions
+            generateQuestions();
+            gameState.currentQuestion = 0;
+            gameState.score = 0;
+            gameState.gameStarted = true;
+            
+            showScreen('gameScreen');
+            startQuestion();
         }
 
         function showQuickPlay() {
@@ -1635,12 +1684,16 @@
         }
 
         function showLeaderboard() {
-            if (!gameState.socket || !gameState.socket.connected) {
-                showToast('Not connected to server. Please refresh the page.', 'error');
-                return;
-            }
-
-            gameState.socket.emit('requestLeaderboard');
+            // Simulate leaderboard data for frontend-only mode
+            const mockLeaderboard = [
+                { rank: 1, username: 'QuizMaster', xp: 2500, level: 15, gamesPlayed: 45 },
+                { rank: 2, username: 'BrainPower', xp: 2200, level: 13, gamesPlayed: 38 },
+                { rank: 3, username: 'SmartPlayer', xp: 1900, level: 11, gamesPlayed: 32 },
+                { rank: 4, username: userData.username, xp: userData.xp, level: userData.level, gamesPlayed: 15 },
+                { rank: 5, username: 'FactFinder', xp: 1600, level: 9, gamesPlayed: 28 }
+            ];
+            
+            displayLeaderboard(mockLeaderboard);
             showScreen('leaderboardScreen');
         }
 
@@ -1757,11 +1810,11 @@
         }
 
         function showCreateParty() {
-            showScreen('createParty');
+            showToast('Multiplayer coming soon! Try Practice Mode for now.', 'info');
         }
 
         function showJoinParty() {
-            showScreen('joinParty');
+            showToast('Multiplayer coming soon! Try Practice Mode for now.', 'info');
         }
 
         function createParty() {
