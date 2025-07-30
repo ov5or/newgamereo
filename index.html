@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🧠 QuizMaster</title>
-
+    <title>Quiz Game</title>
     <style>
         * {
             margin: 0;
@@ -12,59 +11,164 @@
             box-sizing: border-box;
         }
 
-        :root {
-            --primary-color: #4f46e5;
-            --secondary-color: #06b6d4;
-            --success-color: #10b981;
-            --error-color: #ef4444;
-            --warning-color: #f59e0b;
-            --bg-primary: #ffffff;
-            --bg-secondary: #f8fafc;
-            --text-primary: #1e293b;
-            --text-secondary: #64748b;
-            --border-color: #e2e8f0;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        [data-theme="dark"] {
-            --bg-primary: #0f172a;
-            --bg-secondary: #1e293b;
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --border-color: #334155;
-        }
-
-        [data-accessibility="true"] {
-            font-size: 120% !important;
-        }
-
-        [data-accessibility="true"] * {
-            font-size: inherit !important;
-        }
-
-        [data-rtl="true"] {
-            direction: rtl;
-        }
-
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: var(--bg-primary);
-            color: var(--text-primary);
-            transition: all 0.3s ease;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            overflow-x: hidden;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: #ecf0f1;
+        }
+
+        body.accessibility-mode {
+            font-size: 1.2em;
+            line-height: 1.6;
+        }
+
+        body.accessibility-mode.high-contrast {
+            background: #000;
+            color: #fff;
+        }
+
+        body.rtl {
+            direction: rtl;
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 1rem;
+            padding: 20px;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 1rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 1rem 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .dark-mode .card {
+            background: rgba(52, 73, 94, 0.95);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-block;
+            text-decoration: none;
+            text-align: center;
+            margin: 10px;
+            min-width: 150px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn.secondary {
+            background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+        }
+
+        .btn.danger {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+        }
+
+        .input-group {
+            margin: 1rem 0;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .dark-mode .input-group input, .dark-mode .input-group select {
+            background: #34495e;
+            border-color: #5a6c7d;
+            color: #ecf0f1;
+        }
+
+        .tabs {
+            display: flex;
+            background: rgba(255,255,255,0.2);
+            border-radius: 15px;
+            padding: 5px;
+            margin-bottom: 2rem;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .tab.active {
+            background: rgba(255,255,255,0.9);
+            color: #333;
+        }
+
+        .dark-mode .tab.active {
+            background: rgba(52, 73, 94, 0.9);
+            color: #ecf0f1;
         }
 
         .screen {
             display: none;
-            animation: fadeIn 0.3s ease;
+            animation: fadeIn 0.5s ease;
         }
 
         .screen.active {
@@ -76,585 +180,266 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 3rem;
-        }
-
-        .logo {
-            font-size: 2.5rem;
-            font-weight: bold;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 0.5rem;
-        }
-
-        .subtitle {
-            color: var(--text-secondary);
-            font-size: 1.1rem;
-        }
-
-        .btn {
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 1rem 2rem;
-            border-radius: 0.75rem;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: var(--shadow);
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px -8px var(--primary-color);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        .btn-secondary {
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            border: 2px solid var(--border-color);
-        }
-
-        .btn-success {
-            background: var(--success-color);
-        }
-
-        .btn-error {
-            background: var(--error-color);
-        }
-
-        .btn-warning {
-            background: var(--warning-color);
-        }
-
-        .btn-small {
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-        }
-
-        .btn-large {
-            padding: 1.25rem 2.5rem;
-            font-size: 1.125rem;
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none !important;
-        }
-
-        .input-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .input {
-            width: 100%;
-            padding: 1rem;
-            border: 2px solid var(--border-color);
-            border-radius: 0.5rem;
-            font-size: 1rem;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            transition: border-color 0.2s ease;
-        }
-
-        .input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-        }
-
-        .select {
-            width: 100%;
-            padding: 1rem;
-            border: 2px solid var(--border-color);
-            border-radius: 0.5rem;
-            font-size: 1rem;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            cursor: pointer;
-        }
-
-        .card {
-            background: var(--bg-primary);
-            border: 2px solid var(--border-color);
-            border-radius: 1rem;
-            padding: 2rem;
-            margin-bottom: 1.5rem;
-            box-shadow: var(--shadow);
-        }
-
-        .grid {
-            display: grid;
-            gap: 1rem;
-        }
-
-        .grid-2 {
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        }
-
-        .grid-3 {
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        }
-
-        .flex {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .flex-center {
-            align-items: center;
-            justify-content: center;
-        }
-
-        .flex-between {
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .flex-wrap {
-            flex-wrap: wrap;
-        }
-
-        .text-center {
-            text-align: center;
-        }
-
-        .text-large {
-            font-size: 1.25rem;
-        }
-
-        .text-xl {
-            font-size: 1.5rem;
-        }
-
-        .text-2xl {
-            font-size: 2rem;
-        }
-
-        .font-bold {
-            font-weight: bold;
-        }
-
-        .mb-1 { margin-bottom: 0.5rem; }
-        .mb-2 { margin-bottom: 1rem; }
-        .mb-3 { margin-bottom: 1.5rem; }
-        .mb-4 { margin-bottom: 2rem; }
-
-        .mt-1 { margin-top: 0.5rem; }
-        .mt-2 { margin-top: 1rem; }
-        .mt-3 { margin-top: 1.5rem; }
-        .mt-4 { margin-top: 2rem; }
-
-        .party-code {
-            font-size: 3rem;
-            font-weight: bold;
-            letter-spacing: 0.5rem;
-            color: var(--primary-color);
-            text-align: center;
-            margin: 2rem 0;
-            padding: 1rem;
-            background: var(--bg-secondary);
-            border-radius: 1rem;
-            border: 3px dashed var(--primary-color);
-        }
-
         .player-list {
-            list-style: none;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 1rem;
+            margin: 1rem 0;
         }
 
-        .player-item {
+        .player {
             display: flex;
             align-items: center;
-            padding: 1rem;
-            margin-bottom: 0.5rem;
-            background: var(--bg-secondary);
-            border-radius: 0.5rem;
-            border: 2px solid var(--border-color);
+            padding: 10px;
+            margin: 5px 0;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
         }
 
         .avatar {
-            width: 3rem;
-            height: 3rem;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            background: var(--primary-color);
-            color: white;
+            background: linear-gradient(45deg, #667eea, #764ba2);
             display: flex;
             align-items: center;
             justify-content: center;
+            color: white;
             font-weight: bold;
-            margin-right: 1rem;
+            margin-right: 10px;
         }
 
-        .device-icon {
-            margin-left: auto;
-            font-size: 1.25rem;
+        .rtl .avatar {
+            margin-right: 0;
+            margin-left: 10px;
         }
 
         .progress-bar {
             width: 100%;
-            height: 1rem;
-            background: var(--bg-secondary);
-            border-radius: 0.5rem;
+            height: 10px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 5px;
             overflow: hidden;
-            margin: 1rem 0;
+            margin: 10px 0;
         }
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+            border-radius: 5px;
             transition: width 0.3s ease;
-            border-radius: 0.5rem;
-        }
-
-        .timer {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: conic-gradient(var(--primary-color) 0deg, var(--bg-secondary) 0deg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            font-weight: bold;
-            margin: 2rem auto;
-            transition: background 0.1s ease;
         }
 
         .question-card {
-            background: var(--bg-primary);
-            border: 3px solid var(--primary-color);
-            border-radius: 1rem;
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
             padding: 2rem;
-            margin-bottom: 2rem;
+            margin: 1rem 0;
             text-align: center;
         }
 
-        .difficulty-badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 1rem;
-            font-size: 0.75rem;
-            font-weight: bold;
-            text-transform: uppercase;
+        .dark-mode .question-card {
+            background: rgba(52, 73, 94, 0.95);
+        }
+
+        .question-text {
+            font-size: 1.5rem;
             margin-bottom: 1rem;
+            font-weight: 600;
         }
 
-        .difficulty-easy {
-            background: var(--success-color);
+        .timer-circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: conic-gradient(#e74c3c 0deg, #3498db 0deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1rem auto;
+            font-size: 2rem;
+            font-weight: bold;
             color: white;
         }
 
-        .difficulty-hard {
-            background: var(--warning-color);
-            color: white;
-        }
-
-        .difficulty-impossible {
-            background: var(--error-color);
-            color: white;
+        .answer-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 15px;
+            font-size: 1.2rem;
+            border: 3px solid #3498db;
+            border-radius: 15px;
+            text-align: center;
+            margin: 1rem auto;
+            display: block;
         }
 
         .options-grid {
             display: grid;
-            grid-template-columns: 1fr;
-            gap: 1rem;
-            margin-top: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 1rem 0;
         }
 
         .option-btn {
-            padding: 1rem;
-            border: 2px solid var(--border-color);
-            border-radius: 0.5rem;
-            background: var(--bg-secondary);
-            color: var(--text-primary);
+            padding: 15px;
+            border: 2px solid #3498db;
+            background: rgba(255,255,255,0.9);
+            border-radius: 10px;
             cursor: pointer;
-            transition: all 0.2s ease;
-            text-align: left;
+            transition: all 0.3s ease;
         }
 
         .option-btn:hover {
-            border-color: var(--primary-color);
-            background: var(--primary-color);
+            background: #3498db;
             color: white;
         }
 
         .option-btn.correct {
-            border-color: var(--success-color);
-            background: var(--success-color);
+            background: #27ae60;
             color: white;
+            border-color: #27ae60;
         }
 
         .option-btn.wrong {
-            border-color: var(--error-color);
-            background: var(--error-color);
+            background: #e74c3c;
             color: white;
+            border-color: #e74c3c;
         }
 
-        .scoreboard {
-            background: var(--bg-secondary);
-            border-radius: 1rem;
-            padding: 2rem;
-            margin: 2rem 0;
+        .xp-bar {
+            background: rgba(255,255,255,0.3);
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
         }
 
-        .score-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 1rem;
-            margin-bottom: 0.5rem;
-            background: var(--bg-primary);
-            border-radius: 0.5rem;
-            border: 2px solid var(--border-color);
+        .xp-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            border-radius: 10px;
+            transition: width 0.5s ease;
         }
 
-        .score-item.winner {
-            border-color: var(--warning-color);
-            background: linear-gradient(135deg, var(--warning-color), #fbbf24);
-            color: white;
-        }
-
-        .profile-stats {
+        .stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
-            margin: 2rem 0;
+            gap: 15px;
+            margin: 1rem 0;
         }
 
-        .stat-card {
-            background: var(--bg-secondary);
-            padding: 1.5rem;
-            border-radius: 1rem;
+        .stat-item {
             text-align: center;
-            border: 2px solid var(--border-color);
+            padding: 15px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
         }
 
         .stat-value {
             font-size: 2rem;
             font-weight: bold;
-            color: var(--primary-color);
+            color: #3498db;
         }
 
-        .stat-label {
-            color: var(--text-secondary);
-            font-size: 0.875rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+        .device-icon {
+            width: 20px;
+            height: 20px;
+            margin-left: 10px;
         }
 
-        .level-badge {
-            display: inline-block;
-            padding: 0.5rem 1rem;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            border-radius: 2rem;
-            font-weight: bold;
-            margin: 1rem 0;
+        .rtl .device-icon {
+            margin-left: 0;
+            margin-right: 10px;
         }
 
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--bg-primary);
-            border-top: 2px solid var(--border-color);
-            display: flex;
-            justify-content: center;
+        .leaderboard {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
             padding: 1rem;
-            box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
-        .nav-btn {
-            background: none;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 0.875rem;
-        }
-
-        .nav-btn.active {
-            background: var(--primary-color);
-            color: white;
-        }
-
-        .toast {
-            position: fixed;
-            top: 2rem;
-            right: 2rem;
-            background: var(--success-color);
-            color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 0.5rem;
-            box-shadow: var(--shadow);
-            z-index: 1000;
-            animation: slideIn 0.3s ease;
-        }
-
-        .toast.error {
-            background: var(--error-color);
-        }
-
-        .toast.warning {
-            background: var(--warning-color);
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .modal.active {
+        .leaderboard-item {
             display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            margin: 10px 0;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
         }
 
-        .modal-content {
-            background: var(--bg-primary);
-            border-radius: 1rem;
-            padding: 2rem;
-            max-width: 90vw;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        .leaderboard-item.winner {
+            background: linear-gradient(45deg, #f1c40f, #f39c12);
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: #ccc;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .toggle-switch.active {
+            background: #3498db;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(30px);
         }
 
         .countdown {
-            font-size: 4rem;
+            font-size: 3rem;
             font-weight: bold;
             text-align: center;
-            color: var(--primary-color);
-            animation: pulse 1s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
-        .particle {
-            position: absolute;
-            width: 6px;
-            height: 6px;
-            background: var(--primary-color);
-            border-radius: 50%;
-            pointer-events: none;
-            animation: particle 1s ease-out forwards;
-        }
-
-        @keyframes particle {
-            0% {
-                transform: scale(1) translateY(0);
-                opacity: 1;
-            }
-            100% {
-                transform: scale(0) translateY(-100px);
-                opacity: 0;
-            }
-        }
-
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--border-color);
-            border-radius: 50%;
-            border-top-color: var(--primary-color);
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+            color: #e74c3c;
+            margin: 2rem 0;
         }
 
         @media (max-width: 768px) {
             .container {
-                padding: 0.5rem;
+                padding: 10px;
             }
             
-            .logo {
+            .header h1 {
                 font-size: 2rem;
-            }
-            
-            .party-code {
-                font-size: 2rem;
-                letter-spacing: 0.25rem;
-            }
-            
-            .btn {
-                padding: 0.875rem 1.5rem;
-            }
-            
-            .btn-large {
-                padding: 1rem 2rem;
             }
             
             .card {
-                padding: 1.5rem;
+                padding: 1rem;
             }
             
-            .timer {
-                width: 80px;
-                height: 80px;
-                font-size: 1.5rem;
+            .btn {
+                width: 100%;
+                margin: 5px 0;
             }
             
-            .countdown {
-                font-size: 3rem;
-            }
-            
-            .bottom-nav {
-                padding: 0.75rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .grid-2 {
-                grid-template-columns: 1fr;
-            }
-            
-            .flex {
+            .tabs {
                 flex-direction: column;
             }
             
-            .party-code {
-                font-size: 1.5rem;
-                letter-spacing: 0.1rem;
-            }
-            
-            .profile-stats {
-                grid-template-columns: repeat(2, 1fr);
+            .options-grid {
+                grid-template-columns: 1fr;
             }
         }
 
@@ -662,1265 +447,974 @@
             display: none !important;
         }
 
-        .shake {
-            animation: shake 0.5s ease-in-out;
+        .fade-out {
+            animation: fadeOut 0.5s ease forwards;
         }
 
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
+        @keyframes fadeOut {
+            to { opacity: 0; transform: translateY(-20px); }
         }
 
-        .bounce {
-            animation: bounce 0.6s ease-in-out;
+        .level-up {
+            animation: levelUp 1s ease;
         }
 
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
+        @keyframes levelUp {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
         }
 
-        .connection-status {
+        .notification {
             position: fixed;
-            top: 1rem;
-            right: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: var(--bg-primary);
-            border: 2px solid var(--border-color);
-            border-radius: 2rem;
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-            font-weight: 600;
+            top: 20px;
+            right: 20px;
+            background: #27ae60;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
             z-index: 1000;
-            box-shadow: var(--shadow);
         }
 
-        .connection-indicator {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--error-color);
-            animation: pulse 2s infinite;
+        .notification.show {
+            transform: translateX(0);
         }
 
-        .connection-indicator.online {
-            background: var(--success-color);
+        .notification.error {
+            background: #e74c3c;
         }
 
-        .hero-section {
-            text-align: center;
-            margin-bottom: 3rem;
-            padding: 2rem 0;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            border-radius: 2rem;
-            color: white;
-            margin-bottom: 2rem;
+        .notification.warning {
+            background: #f39c12;
         }
 
-        .hero-logo {
-            font-size: 4rem;
-            font-weight: bold;
-            margin-bottom: 1rem;
-            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        }
-
-        .hero-subtitle {
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
-            opacity: 0.9;
-        }
-
-        .hero-credit {
-            font-size: 0.875rem;
-            opacity: 0.7;
-            font-style: italic;
-            margin-bottom: 2rem;
-        }
-
-        .hero-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-
-        .stat-item {
-            text-align: center;
-        }
-
-        .stat-number {
+        .party-code {
             font-size: 2rem;
             font-weight: bold;
-            color: white;
-        }
-
-        .stat-label {
-            font-size: 0.875rem;
-            opacity: 0.8;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .main-actions {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 3rem;
-        }
-
-        .btn-hero {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1.5rem 2rem;
-            border-radius: 1rem;
-            text-align: left;
-            font-size: 1rem;
-            min-height: 80px;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .btn-hero:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-        }
-
-        .btn-icon {
-            font-size: 2rem;
-            flex-shrink: 0;
-        }
-
-        .btn-text {
-            flex: 1;
-        }
-
-        .btn-title {
-            font-size: 1.25rem;
-            font-weight: bold;
-            margin-bottom: 0.25rem;
-        }
-
-        .btn-desc {
-            font-size: 0.875rem;
-            opacity: 0.8;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color), #6366f1);
-            color: white;
-        }
-
-        .btn-accent {
-            background: linear-gradient(135deg, var(--warning-color), #f97316);
-            color: white;
-        }
-
-        .btn-special {
-            background: linear-gradient(135deg, #8b5cf6, #a855f7);
-            color: white;
-        }
-
-        .online-features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-
-        .feature-card {
-            background: var(--bg-secondary);
-            border: 2px solid var(--border-color);
-            border-radius: 1rem;
-            padding: 1.5rem;
             text-align: center;
-            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.2);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 1rem 0;
+            letter-spacing: 3px;
         }
 
-        .feature-card:hover {
-            transform: translateY(-2px);
-            border-color: var(--primary-color);
+        .invite-link {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            word-break: break-all;
+            margin: 1rem 0;
         }
 
-        .feature-icon {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .feature-title {
-            font-size: 1.125rem;
+        .difficulty-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
             font-weight: bold;
-            margin-bottom: 0.5rem;
-            color: var(--text-primary);
+            margin-left: 10px;
         }
 
-        .feature-desc {
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            line-height: 1.4;
-        }
-
-        @media (max-width: 768px) {
-            .hero-logo {
-                font-size: 2.5rem;
-            }
-            
-            .hero-subtitle {
-                font-size: 1.125rem;
-            }
-            
-            .main-actions {
-                grid-template-columns: 1fr;
-            }
-            
-            .online-features {
-                grid-template-columns: 1fr;
-            }
-            
-            .btn-hero {
-                min-height: 70px;
-                padding: 1rem 1.5rem;
-            }
-        }
-
-        .leaderboard-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .leaderboard-item {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1rem;
-            background: var(--bg-secondary);
-            border-radius: 0.75rem;
-            border: 2px solid var(--border-color);
-            transition: all 0.3s ease;
-        }
-
-        .leaderboard-item:hover {
-            transform: translateY(-2px);
-            border-color: var(--primary-color);
-        }
-
-        .leaderboard-item.top-three {
-            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+        .difficulty-easy {
+            background: #27ae60;
             color: white;
-            border-color: #d97706;
         }
 
-        .rank {
-            font-size: 1.5rem;
+        .difficulty-hard {
+            background: #f39c12;
+            color: white;
+        }
+
+        .difficulty-impossible {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .shop-item {
+            background: rgba(255,255,255,0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .coin-icon {
+            color: #f1c40f;
             font-weight: bold;
-            min-width: 60px;
-            text-align: center;
         }
 
-        .player-info {
-            flex: 1;
-        }
-
-        .player-name {
-            font-size: 1.125rem;
+        .rank-badge {
+            background: linear-gradient(45deg, #9b59b6, #8e44ad);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
             font-weight: bold;
-            margin-bottom: 0.25rem;
-        }
-
-        .player-stats {
-            font-size: 0.875rem;
-            opacity: 0.8;
-        }
-
-        .top-three .player-stats {
-            opacity: 0.9;
         }
     </style>
 </head>
 <body>
-    <div class="connection-status">
-        <div class="connection-indicator offline" id="connectionIndicator"></div>
-        <span id="connectionText">Connecting...</span>
-    </div>
-
     <div class="container">
-        <div id="mainMenu" class="screen active">
-            <div class="hero-section">
-                <div class="hero-logo">🧠 QuizMaster</div>
-                <div class="hero-subtitle">Ultimate Multiplayer Quiz Experience</div>
-                <div class="hero-credit">by Omed</div>
-                <div class="hero-stats">
-                    <div class="stat-item">
-                        <div class="stat-number" id="onlineCount">...</div>
-                        <div class="stat-label">Players Online</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number" id="gamesPlayed">0</div>
-                        <div class="stat-label">Games Today</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number" id="activeParties">0</div>
-                        <div class="stat-label">Active Parties</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="main-actions">
-                <button class="btn btn-hero btn-primary" onclick="showCreateParty()">
-                    <div class="btn-icon">🎯</div>
-                    <div class="btn-text">
-                        <div class="btn-title">Create Party</div>
-                        <div class="btn-desc">Start a new quiz game with friends</div>
-                    </div>
-                </button>
-                <button class="btn btn-hero btn-secondary" onclick="showJoinParty()">
-                    <div class="btn-icon">🚀</div>
-                    <div class="btn-text">
-                        <div class="btn-title">Join Party</div>
-                        <div class="btn-desc">Enter with party code</div>
-                    </div>
-                </button>
-                <button class="btn btn-hero btn-accent" onclick="startPracticeMode()">
-                    <div class="btn-icon">🎯</div>
-                    <div class="btn-text">
-                        <div class="btn-title">Practice Mode</div>
-                        <div class="btn-desc">Play solo to improve skills</div>
-                    </div>
-                </button>
-                <button class="btn btn-hero btn-special" onclick="showLeaderboard()">
-                    <div class="btn-icon">🏆</div>
-                    <div class="btn-text">
-                        <div class="btn-title">Leaderboard</div>
-                        <div class="btn-desc">Top players worldwide</div>
-                    </div>
-                </button>
-            </div>
+        <div class="header">
+            <h1 id="app-title">Quiz Master</h1>
+        </div>
 
-            <div class="online-features">
-                <div class="feature-card">
-                    <div class="feature-icon">🌍</div>
-                    <div class="feature-title">Global Multiplayer</div>
-                    <div class="feature-desc">Play with people worldwide in real-time</div>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🎮</div>
-                    <div class="feature-title">Live Tournaments</div>
-                    <div class="feature-desc">Compete in daily tournaments</div>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">📊</div>
-                    <div class="feature-title">Live Stats</div>
-                    <div class="feature-desc">Real-time player statistics</div>
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('main')" id="tab-main">Main</div>
+            <div class="tab" onclick="showTab('profile')" id="tab-profile">Profile</div>
+            <div class="tab" onclick="showTab('shop')" id="tab-shop">Shop</div>
+            <div class="tab" onclick="showTab('settings')" id="tab-settings">Settings</div>
+        </div>
+
+        <div id="main-screen" class="screen active">
+            <div class="card">
+                <h2 id="main-title">Welcome to Quiz Master</h2>
+                <div style="text-align: center; margin: 2rem 0;">
+                    <button class="btn" onclick="showCreateParty()" id="create-party-btn">Create Party</button>
+                    <button class="btn secondary" onclick="showJoinParty()" id="join-party-btn">Join Party</button>
                 </div>
             </div>
         </div>
 
-        <div id="createParty" class="screen">
-            <div class="header">
-                <div class="logo">Create Party</div>
-            </div>
-            
+        <div id="create-party-screen" class="screen">
             <div class="card">
+                <h2 id="create-title">Create New Party</h2>
                 <div class="input-group">
-                    <label class="label">Number of Players</label>
-                    <select class="select" id="playerCount">
+                    <label id="players-label">Number of Players:</label>
+                    <select id="max-players">
                         <option value="2">2 Players</option>
                         <option value="4">4 Players</option>
                         <option value="6">6 Players</option>
                         <option value="8">8 Players</option>
                     </select>
                 </div>
-                
                 <div class="input-group">
-                    <label class="label">Language</label>
-                    <select class="select" id="language" onchange="changeLanguage(this.value)">
+                    <label id="language-label">Language:</label>
+                    <select id="game-language" onchange="changeLanguage()">
                         <option value="en">English</option>
-                        <option value="ar">Arabic</option>
+                        <option value="ar">العربية</option>
                     </select>
                 </div>
-                
                 <div class="input-group">
-                    <label class="label">Quiz Category</label>
-                    <select class="select" id="category">
-                        <option value="general">General Knowledge</option>
+                    <label id="category-label">Quiz Category:</label>
+                    <select id="quiz-category">
                         <option value="sports">Sports</option>
                         <option value="geography">Geography</option>
                         <option value="history">History</option>
                         <option value="science">Science</option>
+                        <option value="general">General Knowledge</option>
                     </select>
                 </div>
-                
                 <div class="input-group">
-                    <label class="label">Difficulty</label>
-                    <select class="select" id="difficulty">
+                    <label id="difficulty-label">Difficulty:</label>
+                    <select id="quiz-difficulty">
                         <option value="random">Random</option>
                         <option value="easy">Easy</option>
                         <option value="hard">Hard</option>
                         <option value="impossible">Impossible</option>
                     </select>
                 </div>
-                
-                <div class="flex flex-between">
-                    <button class="btn btn-secondary" onclick="showMainMenu()">Back</button>
-                    <button class="btn" onclick="createParty()">Create Party</button>
+                <div style="text-align: center; margin: 2rem 0;">
+                    <button class="btn" onclick="createParty()" id="create-btn">Create Party</button>
+                    <button class="btn secondary" onclick="showMain()" id="back-btn">Back</button>
                 </div>
             </div>
         </div>
 
-        <div id="joinParty" class="screen">
-            <div class="header">
-                <div class="logo">Join Party</div>
-            </div>
-            
+        <div id="join-party-screen" class="screen">
             <div class="card">
+                <h2 id="join-title">Join Party</h2>
                 <div class="input-group">
-                    <label class="label">Party Code</label>
-                    <input type="text" class="input" id="partyCodeInput" placeholder="Enter 4-digit code" maxlength="4">
+                    <label id="code-label">Party Code:</label>
+                    <input type="text" id="party-code-input" placeholder="Enter party code" maxlength="6">
                 </div>
-                
-                <div class="flex flex-between">
-                    <button class="btn btn-secondary" onclick="showMainMenu()">Back</button>
-                    <button class="btn" onclick="joinParty()">Join Party</button>
+                <div style="text-align: center; margin: 2rem 0;">
+                    <button class="btn" onclick="joinParty()" id="join-btn">Join Party</button>
+                    <button class="btn secondary" onclick="showMain()" id="back-join-btn">Back</button>
                 </div>
             </div>
         </div>
 
-        <div id="partyLobby" class="screen">
-            <div class="header">
-                <div class="logo">Party Lobby</div>
-            </div>
-            
+        <div id="party-lobby-screen" class="screen">
             <div class="card">
-                <div class="party-code" id="partyCodeDisplay"></div>
-                
-                <div class="text-center mb-3">
-                    <button class="btn btn-small" onclick="copyPartyLink()">Share Invite Link</button>
+                <h2 id="lobby-title">Party Lobby</h2>
+                <div class="party-code" id="current-party-code">ABC123</div>
+                <div class="invite-link" id="invite-link-display"></div>
+                <div class="player-list" id="player-list"></div>
+                <div class="countdown" id="lobby-countdown"></div>
+                <div style="text-align: center; margin: 2rem 0;" id="host-controls">
+                    <button class="btn" onclick="startGame()" id="start-game-btn">Start Game</button>
+                    <button class="btn danger" onclick="leaveParty()" id="leave-party-btn">Leave Party</button>
                 </div>
-                
-                <div class="mb-3">
-                    <div class="flex flex-between mb-2">
-                        <span class="font-bold">Players</span>
-                        <span id="playerCounter">0/2</span>
+            </div>
+        </div>
+
+        <div id="game-screen" class="screen">
+            <div class="card">
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="current-question">1</div>
+                        <div id="question-counter">Question</div>
                     </div>
-                    <ul class="player-list" id="playerList"></ul>
-                </div>
-                
-                <div id="hostControls" class="hidden">
-                    <div class="flex flex-wrap">
-                        <button class="btn btn-success" onclick="startGame()" id="startGameBtn" disabled>Start Game</button>
-                        <button class="btn btn-error" onclick="leaveParty()">Leave Party</button>
+                    <div class="stat-item">
+                        <div class="stat-value" id="current-score">0</div>
+                        <div id="score-label">Score</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="current-streak">0</div>
+                        <div id="streak-label">Streak</div>
                     </div>
                 </div>
-                
-                <div id="playerControls" class="hidden">
-                    <button class="btn btn-error" onclick="leaveParty()">Leave Party</button>
+                <div class="question-card">
+                    <div class="question-text" id="question-text"></div>
+                    <div class="timer-circle" id="timer-display">10</div>
+                    <input type="text" class="answer-input" id="answer-input" placeholder="Enter your answer..." disabled>
+                    <div class="options-grid hidden" id="options-container"></div>
                 </div>
-                
-                <div id="autoStartCountdown" class="hidden">
-                    <div class="text-center mt-3">
-                        <div class="text-large">Auto-starting in: <span id="autoStartTimer">5:00</span></div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" id="autoStartProgress"></div>
+            </div>
+        </div>
+
+        <div id="game-results-screen" class="screen">
+            <div class="card">
+                <h2 id="results-title">Game Results</h2>
+                <div class="leaderboard" id="final-leaderboard"></div>
+                <div class="countdown" id="results-countdown"></div>
+                <div style="text-align: center; margin: 2rem 0;">
+                    <button class="btn" onclick="returnToLobby()" id="return-lobby-btn">Return to Lobby</button>
+                    <button class="btn secondary" onclick="showMain()" id="main-menu-btn">Main Menu</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="profile-screen" class="screen">
+            <div class="card">
+                <h2 id="profile-title">Player Profile</h2>
+                <div style="text-align: center; margin: 2rem 0;">
+                    <div class="avatar" id="profile-avatar" style="width: 80px; height: 80px; font-size: 2rem; margin: 0 auto 1rem;">
+                        <span id="avatar-letter">A</span>
+                    </div>
+                    <div class="input-group">
+                        <label id="username-label">Username:</label>
+                        <input type="text" id="username-input" maxlength="12">
+                        <button class="btn secondary" onclick="updateUsername()" id="update-username-btn">Update</button>
+                    </div>
+                </div>
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="player-level">1</div>
+                        <div id="level-label">Level</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="player-xp">0</div>
+                        <div id="xp-label">XP</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="player-coins">0</div>
+                        <div id="coins-label">Coins</div>
+                    </div>
+                </div>
+                <div class="xp-bar">
+                    <div class="xp-fill" id="xp-progress" style="width: 0%"></div>
+                </div>
+                <div class="rank-badge" id="player-rank">Rookie</div>
+                <div style="margin: 1rem 0;">
+                    <span id="device-info">Device: </span>
+                    <span id="device-name"></span>
+                </div>
+            </div>
+        </div>
+
+        <div id="shop-screen" class="screen">
+            <div class="card">
+                <h2 id="shop-title">Cosmetic Shop</h2>
+                <div id="shop-items">
+                    <div class="shop-item">
+                        <div>
+                            <h3>Pro Title</h3>
+                            <p>Unlock the "Pro" title</p>
+                        </div>
+                        <div>
+                            <span class="coin-icon">🪙 50</span>
+                            <button class="btn" onclick="buyItem('pro-title', 50)">Buy</button>
+                        </div>
+                    </div>
+                    <div class="shop-item">
+                        <div>
+                            <h3>Master Badge</h3>
+                            <p>Show your mastery with this badge</p>
+                        </div>
+                        <div>
+                            <span class="coin-icon">🪙 100</span>
+                            <button class="btn" onclick="buyItem('master-badge', 100)">Buy</button>
+                        </div>
+                    </div>
+                    <div class="shop-item">
+                        <div>
+                            <h3>Legend Aura</h3>
+                            <p>Legendary visual effect</p>
+                        </div>
+                        <div>
+                            <span class="coin-icon">🪙 200</span>
+                            <button class="btn" onclick="buyItem('legend-aura', 200)">Buy</button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div id="gameScreen" class="screen">
-            <div class="header">
-                <div class="flex flex-between">
-                    <div class="text-large">Question <span id="questionNumber">1</span>/10</div>
-                    <div class="text-large">Score: <span id="currentScore">0</span></div>
-                </div>
-            </div>
-            
-            <div class="timer" id="questionTimer">10</div>
-            
-            <div class="question-card">
-                <div class="difficulty-badge" id="questionDifficulty">Easy</div>
-                <div class="text-xl" id="questionText">Loading question...</div>
-            </div>
-            
-            <div id="answerPhase">
-                <div class="input-group">
-                    <input type="text" class="input" id="answerInput" placeholder="Type your answer here..." disabled>
-                </div>
-                <div class="text-center">
-                    <button class="btn" onclick="submitAnswer()" id="submitBtn" disabled>Submit Answer</button>
-                </div>
-            </div>
-            
-            <div id="optionsPhase" class="hidden">
-                <div class="text-center mb-3">
-                    <div class="text-large">Choose the correct answer:</div>
-                </div>
-                <div class="options-grid" id="optionsGrid"></div>
-            </div>
-            
-            <div id="resultPhase" class="hidden">
-                <div class="text-center">
-                    <div class="text-2xl mb-2" id="resultText">Correct!</div>
-                    <div class="text-large" id="rewardText">+5 coins, +10 XP</div>
-                </div>
-            </div>
-        </div>
-
-        <div id="gameEnd" class="screen">
-            <div class="header">
-                <div class="logo">Game Over!</div>
-            </div>
-            
-            <div class="scoreboard">
-                <div class="text-xl text-center mb-3">Final Scores</div>
-                <div id="finalScores"></div>
-            </div>
-            
-            <div class="card text-center">
-                <div class="countdown" id="endCountdown">30</div>
-                <div class="text-large mb-3">Returning to main menu...</div>
-                <button class="btn" onclick="returnToMainMenu()">Return Now</button>
-            </div>
-        </div>
-
-        <div id="leaderboardScreen" class="screen">
-            <div class="header">
-                <div class="logo">🏆 Global Leaderboard</div>
-                <div class="subtitle">Top Players Worldwide</div>
-            </div>
-            
+        <div id="settings-screen" class="screen">
             <div class="card">
-                <div id="leaderboardContent">
-                    <div class="text-center">
-                        <div class="loading"></div>
-                        <div class="mt-2">Loading leaderboard...</div>
+                <h2 id="settings-title">Settings</h2>
+                <div class="settings-grid">
+                    <div class="stat-item">
+                        <h3 id="dark-mode-label">Dark Mode</h3>
+                        <div class="toggle-switch" id="dark-mode-toggle" onclick="toggleDarkMode()">
+                            <div class="toggle-slider"></div>
+                        </div>
                     </div>
-                </div>
-            </div>
-            
-            <div class="text-center mt-3">
-                <button class="btn btn-secondary" onclick="showMainMenu()">Back to Home</button>
-            </div>
-        </div>
-
-        <div id="profileScreen" class="screen">
-            <div class="header">
-                <div class="logo">Profile</div>
-            </div>
-            
-            <div class="card text-center">
-                <div class="avatar" id="profileAvatar" style="width: 5rem; height: 5rem; font-size: 2rem; margin: 0 auto 1rem; cursor: pointer;" onclick="triggerAvatarUpload()" title="Click to change profile picture">U</div>
-                <input type="file" id="avatarUpload" accept="image/jpeg,image/jpg,image/png" style="display: none;" onchange="handleAvatarUpload(event)">
-                <div class="text-xl font-bold" id="profileUsername">Guest_1234</div>
-                <div class="level-badge" id="profileLevel">Level 1 - Rookie</div>
-                <div class="device-icon" id="profileDevice">📱</div>
-            </div>
-            
-            <div class="profile-stats">
-                <div class="stat-card">
-                    <div class="stat-value" id="profileXP">0</div>
-                    <div class="stat-label">XP</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="profileLevel">1</div>
-                    <div class="stat-label">Level</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="profileCoins">0</div>
-                    <div class="stat-label">Coins</div>
-                </div>
-            </div>
-            
-            <div class="card">
-                <div class="input-group">
-                    <label class="label">Username</label>
-                    <input type="text" class="input" id="usernameInput" placeholder="Enter username (3-12 chars)">
-                    <button class="btn mt-2" onclick="changeUsername()">Change Username</button>
-                </div>
-                
-                <div class="input-group">
-                    <label class="label">Settings</label>
-                    <div class="flex flex-wrap">
-                        <button class="btn btn-secondary btn-small" onclick="toggleDarkMode()">Toggle Dark Mode</button>
-                        <button class="btn btn-secondary btn-small" onclick="toggleAccessibility()">Accessibility Mode</button>
+                    <div class="stat-item">
+                        <h3 id="accessibility-label">Accessibility Mode</h3>
+                        <div class="toggle-switch" id="accessibility-toggle" onclick="toggleAccessibility()">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <h3 id="high-contrast-label">High Contrast</h3>
+                        <div class="toggle-switch" id="contrast-toggle" onclick="toggleHighContrast()">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <h3 id="sound-label">Sound Effects</h3>
+                        <div class="toggle-switch active" id="sound-toggle" onclick="toggleSound()">
+                            <div class="toggle-slider"></div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="bottom-nav">
-        <button class="nav-btn active" onclick="showScreen('mainMenu', this)">Home</button>
-        <button class="nav-btn" onclick="showScreen('profileScreen', this)">Profile</button>
-    </div>
-
-    <div id="modal" class="modal">
-        <div class="modal-content">
-            <div id="modalContent"></div>
-        </div>
-    </div>
+    <div class="notification" id="notification"></div>
 
     <script>
-        const QUESTION_BANKS = {
-            general: {
-                easy: [
-                    {q: "What is the capital of France?", a: "paris"},
-                    {q: "How many days are in a week?", a: "7"},
-                    {q: "What color do you get when you mix red and yellow?", a: "orange"},
-                    {q: "What is 5 + 3?", a: "8"},
-                    {q: "What animal says 'moo'?", a: "cow"}
-                ],
-                hard: [
-                    {q: "What is the chemical symbol for gold?", a: "au"},
-                    {q: "In which year did World War II end?", a: "1945"},
-                    {q: "What is the largest planet in our solar system?", a: "jupiter"},
-                    {q: "Who wrote 'Romeo and Juliet'?", a: "shakespeare"},
-                    {q: "What is the square root of 144?", a: "12"}
-                ],
-                impossible: [
-                    {q: "What is the 15th element on the periodic table?", a: "phosphorus"},
-                    {q: "In what year was the Treaty of Westphalia signed?", a: "1648"},
-                    {q: "What is the name of the longest river in Asia?", a: "yangtze"},
-                    {q: "Who composed 'The Art of Fugue'?", a: "bach"},
-                    {q: "What is the atomic number of tungsten?", a: "74"}
-                ]
-            },
+        let currentUser = {
+            username: '',
+            level: 1,
+            xp: 0,
+            coins: 0,
+            streak: 0,
+            totalGames: 0,
+            wins: 0,
+            avatar: null,
+            rank: 'Rookie',
+            titles: [],
+            ownedItems: [],
+            usernameChanges: 0,
+            lastUsernameChange: 0,
+            isBanned: false
+        };
+
+        let gameState = {
+            currentParty: null,
+            isHost: false,
+            currentQuestion: 0,
+            score: 0,
+            streak: 0,
+            answers: [],
+            timeLeft: 10,
+            gameStarted: false,
+            language: 'en',
+            difficulty: 'random'
+        };
+
+        let parties = new Map();
+        let questions = {
             sports: {
                 easy: [
-                    {q: "How many players are on a basketball team?", a: "5"},
-                    {q: "What sport is played at Wimbledon?", a: "tennis"},
-                    {q: "How many holes are on a standard golf course?", a: "18"},
-                    {q: "What color is the center of an archery target?", a: "gold"},
-                    {q: "In which country did the Olympics originate?", a: "greece"}
+                    { question: "How many players are on a basketball team?", answer: "5", options: ["3", "4", "5", "6", "7"] },
+                    { question: "What sport uses a puck?", answer: "hockey", options: ["hockey", "soccer", "tennis", "golf", "baseball"] },
+                    { question: "How many holes are on a golf course?", answer: "18", options: ["16", "17", "18", "19", "20"] }
                 ],
                 hard: [
-                    {q: "Who holds the record for most home runs in MLB?", a: "aaron"},
-                    {q: "What is the maximum score possible in ten-pin bowling?", a: "300"},
-                    {q: "Which country has won the most FIFA World Cups?", a: "brazil"},
-                    {q: "What is the diameter of a basketball hoop in inches?", a: "18"},
-                    {q: "In golf, what is an eagle?", a: "two under par"}
+                    { question: "Which country won the first FIFA World Cup?", answer: "uruguay", options: ["brazil", "argentina", "uruguay", "germany", "italy"] },
+                    { question: "What is the maximum score in ten-pin bowling?", answer: "300", options: ["250", "280", "300", "320", "350"] }
                 ],
                 impossible: [
-                    {q: "Who was the first person to run a sub-4-minute mile?", a: "bannister"},
-                    {q: "What year was the first modern Olympic Games held?", a: "1896"},
-                    {q: "How many stitches are on a baseball?", a: "108"},
-                    {q: "What is the oldest tennis tournament in the world?", a: "wimbledon"},
-                    {q: "Which boxer was known as 'The Brown Bomber'?", a: "louis"}
+                    { question: "Who holds the record for most goals in a single NHL season?", answer: "gretzky", options: ["gretzky", "lemieux", "ovechkin", "hull", "esposito"] }
                 ]
             },
             geography: {
                 easy: [
-                    {q: "What is the largest continent?", a: "asia"},
-                    {q: "Which ocean is the largest?", a: "pacific"},
-                    {q: "What is the capital of Australia?", a: "canberra"},
-                    {q: "How many continents are there?", a: "7"},
-                    {q: "What is the longest river in the world?", a: "nile"}
+                    { question: "What is the capital of France?", answer: "paris", options: ["london", "madrid", "paris", "rome", "berlin"] },
+                    { question: "Which continent is Egypt in?", answer: "africa", options: ["asia", "africa", "europe", "america", "australia"] },
+                    { question: "What is the largest ocean?", answer: "pacific", options: ["atlantic", "indian", "pacific", "arctic", "southern"] }
                 ],
                 hard: [
-                    {q: "What is the smallest country in the world?", a: "vatican"},
-                    {q: "Which desert is the largest in the world?", a: "antarctica"},
-                    {q: "What is the deepest ocean trench?", a: "mariana"},
-                    {q: "Which country has the most time zones?", a: "france"},
-                    {q: "What is the highest waterfall in the world?", a: "angel"}
+                    { question: "What is the smallest country in the world?", answer: "vatican", options: ["monaco", "vatican", "liechtenstein", "san marino", "andorra"] },
+                    { question: "Which river flows through Cairo?", answer: "nile", options: ["amazon", "mississippi", "nile", "ganges", "yangtze"] }
                 ],
                 impossible: [
-                    {q: "What is the second smallest country in the world?", a: "monaco"},
-                    {q: "Which country has the most natural lakes?", a: "canada"},
-                    {q: "What is the driest desert in the world?", a: "atacama"},
-                    {q: "Which city is closest to the center of the Earth?", a: "quito"},
-                    {q: "What is the most linguistically diverse country?", a: "papua new guinea"}
+                    { question: "What is the deepest point in Earth's oceans?", answer: "mariana trench", options: ["mariana trench", "puerto rico trench", "java trench", "philippine trench", "kermadec trench"] }
                 ]
             }
         };
 
-        const TRANSLATIONS = {
+        let translations = {
             en: {
-                createParty: "Create Party",
-                joinParty: "Join Party",
-                numberOfPlayers: "Number of Players",
-                language: "Language",
-                quizCategory: "Quiz Category",
-                difficulty: "Difficulty",
-                back: "Back",
-                players: "Players",
-                startGame: "Start Game",
-                leaveParty: "Leave Party",
-                shareInviteLink: "Share Invite Link",
-                autoStarting: "Auto-starting in:",
-                question: "Question",
-                score: "Score",
-                typeAnswer: "Type your answer here...",
-                submitAnswer: "Submit Answer",
-                chooseCorrect: "Choose the correct answer:",
-                correct: "Correct!",
-                wrong: "Wrong!",
-                gameOver: "Game Over!",
-                finalScores: "Final Scores",
-                returningToMenu: "Returning to main menu...",
-                returnNow: "Return Now",
-                profile: "Profile",
-                username: "Username",
-                changeUsername: "Change Username",
-                settings: "Settings",
-                toggleDarkMode: "Toggle Dark Mode",
-                accessibilityMode: "Accessibility Mode",
-                home: "Home",
-                level: "Level",
-                rookie: "Rookie",
-                pro: "Pro",
-                master: "Master",
-                legend: "Legend"
+                'app-title': 'Quiz Master',
+                'main-title': 'Welcome to Quiz Master',
+                'create-party-btn': 'Create Party',
+                'join-party-btn': 'Join Party',
+                'create-title': 'Create New Party',
+                'players-label': 'Number of Players:',
+                'language-label': 'Language:',
+                'category-label': 'Quiz Category:',
+                'difficulty-label': 'Difficulty:',
+                'create-btn': 'Create Party',
+                'back-btn': 'Back',
+                'join-title': 'Join Party',
+                'code-label': 'Party Code:',
+                'join-btn': 'Join Party',
+                'back-join-btn': 'Back',
+                'lobby-title': 'Party Lobby',
+                'start-game-btn': 'Start Game',
+                'leave-party-btn': 'Leave Party',
+                'question-counter': 'Question',
+                'score-label': 'Score',
+                'streak-label': 'Streak',
+                'results-title': 'Game Results',
+                'return-lobby-btn': 'Return to Lobby',
+                'main-menu-btn': 'Main Menu',
+                'profile-title': 'Player Profile',
+                'username-label': 'Username:',
+                'update-username-btn': 'Update',
+                'level-label': 'Level',
+                'xp-label': 'XP',
+                'coins-label': 'Coins',
+                'shop-title': 'Cosmetic Shop',
+                'settings-title': 'Settings',
+                'dark-mode-label': 'Dark Mode',
+                'accessibility-label': 'Accessibility Mode',
+                'high-contrast-label': 'High Contrast',
+                'sound-label': 'Sound Effects',
+                'device-info': 'Device: ',
+                'tab-main': 'Main',
+                'tab-profile': 'Profile',
+                'tab-shop': 'Shop',
+                'tab-settings': 'Settings'
             },
             ar: {
-                createParty: "إنشاء حفلة",
-                joinParty: "انضمام للحفلة",
-                numberOfPlayers: "عدد اللاعبين",
-                language: "اللغة",
-                quizCategory: "فئة الاختبار",
-                difficulty: "الصعوبة",
-                back: "رجوع",
-                players: "اللاعبون",
-                startGame: "ابدأ اللعبة",
-                leaveParty: "مغادرة الحفلة",
-                shareInviteLink: "مشاركة رابط الدعوة",
-                autoStarting: "البدء التلقائي خلال:",
-                question: "سؤال",
-                score: "النتيجة",
-                typeAnswer: "اكتب إجابتك هنا...",
-                submitAnswer: "إرسال الإجابة",
-                chooseCorrect: "اختر الإجابة الصحيحة:",
-                correct: "صحيح!",
-                wrong: "خطأ!",
-                gameOver: "انتهت اللعبة!",
-                finalScores: "النتائج النهائية",
-                returningToMenu: "العودة للقائمة الرئيسية...",
-                returnNow: "العودة الآن",
-                profile: "الملف الشخصي",
-                username: "اسم المستخدم",
-                changeUsername: "تغيير اسم المستخدم",
-                settings: "الإعدادات",
-                toggleDarkMode: "تبديل الوضع المظلم",
-                accessibilityMode: "وضع إمكانية الوصول",
-                home: "الرئيسية",
-                level: "المستوى",
-                rookie: "مبتدئ",
-                pro: "محترف",
-                master: "خبير",
-                legend: "أسطورة"
+                'app-title': 'سيد الأسئلة',
+                'main-title': 'مرحباً بك في سيد الأسئلة',
+                'create-party-btn': 'إنشاء حفلة',
+                'join-party-btn': 'انضمام لحفلة',
+                'create-title': 'إنشاء حفلة جديدة',
+                'players-label': 'عدد اللاعبين:',
+                'language-label': 'اللغة:',
+                'category-label': 'فئة الأسئلة:',
+                'difficulty-label': 'الصعوبة:',
+                'create-btn': 'إنشاء حفلة',
+                'back-btn': 'عودة',
+                'join-title': 'انضمام لحفلة',
+                'code-label': 'رمز الحفلة:',
+                'join-btn': 'انضمام',
+                'back-join-btn': 'عودة',
+                'lobby-title': 'صالة الحفلة',
+                'start-game-btn': 'بدء اللعبة',
+                'leave-party-btn': 'ترك الحفلة',
+                'question-counter': 'السؤال',
+                'score-label': 'النقاط',
+                'streak-label': 'السلسلة',
+                'results-title': 'نتائج اللعبة',
+                'return-lobby-btn': 'العودة للصالة',
+                'main-menu-btn': 'القائمة الرئيسية',
+                'profile-title': 'الملف الشخصي',
+                'username-label': 'اسم المستخدم:',
+                'update-username-btn': 'تحديث',
+                'level-label': 'المستوى',
+                'xp-label': 'الخبرة',
+                'coins-label': 'العملات',
+                'shop-title': 'متجر التجميل',
+                'settings-title': 'الإعدادات',
+                'dark-mode-label': 'الوضع المظلم',
+                'accessibility-label': 'وضع إمكانية الوصول',
+                'high-contrast-label': 'التباين العالي',
+                'sound-label': 'المؤثرات الصوتية',
+                'device-info': 'الجهاز: ',
+                'tab-main': 'الرئيسية',
+                'tab-profile': 'الملف',
+                'tab-shop': 'المتجر',
+                'tab-settings': 'الإعدادات'
             }
         };
 
-        const INAPPROPRIATE_WORDS = ["admin", "test", "fuck", "shit", "damn", "hell", "ass", "bitch", "crap", "bastard", "whore", "slut", "gay", "fag", "nigga", "nigger", "hitler", "nazi", "isis", "terrorist", "rape", "sex", "porn", "dick", "cock", "pussy", "tits", "boobs", "asshole", "motherfucker", "cunt", "faggot", "retard", "stupid", "idiot", "loser", "noob", "bot", "cheat", "hacker", "owner", "moderator", "mod", "god", "jesus", "allah", "root", "system", "null", "undefined"];
-        const DEVICE_ICONS = {
-            iPhone: "📱",
-            iPad: "📱",
-            Android: "📱",
-            Windows: "💻",
-            Mac: "💻",
-            Linux: "💻"
+        let badWords = ['fuck', 'shit', 'damn', 'hell', 'ass', 'bitch', 'crap'];
+        let sounds = {
+            correct: null,
+            wrong: null,
+            levelUp: null,
+            click: null,
+            notification: null
         };
+        let soundEnabled = true;
 
-        let gameState = {
-            currentScreen: 'mainMenu',
-            currentParty: null,
-            isHost: false,
-            currentPlayer: null,
-            players: [],
-            currentQuestion: 0,
-            questions: [],
-            gameStarted: false,
-            answers: {},
-            score: 0,
-            timer: null,
-            language: 'en',
-            settings: {
-                darkMode: false,
-                accessibility: false
-            },
-            socket: null,
-            reconnectAttempts: 0,
-            maxReconnectAttempts: 5
-        };
-
-        let userData = {
-            username: '',
-            xp: 0,
-            level: 1,
-            coins: 0,
-            usernameChangeAttempts: 0,
-            usernameChangeBan: 0,
-            avatar: null
-        };
-
-        function init() {
+        function initializeApp() {
             loadUserData();
-            setupEventListeners();
-            checkURLParams();
-            updateProfile();
-            initializeSocket();
-            playSound('menu');
+            updateUI();
+            detectDevice();
+            loadSettings();
+            checkUrlParams();
+            initializeSounds();
+            applyLanguage();
         }
 
-        // Frontend-only mode for Vercel deployment
-        function initializeSocket() {
-            // Set connected status immediately for frontend-only mode
-            updateConnectionStatus(true);
+        function initializeSounds() {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
             
-            // Simulate realistic server stats
-            const stats = {
-                onlineUsers: Math.floor(Math.random() * 45) + 20,
-                gamesToday: Math.floor(Math.random() * 120) + 60,
-                activeParties: Math.floor(Math.random() * 10) + 5,
-                totalGames: Math.floor(Math.random() * 800) + 400
+            sounds.correct = createBeep(audioContext, 523.25, 0.2);
+            sounds.wrong = createBeep(audioContext, 196, 0.5);
+            sounds.levelUp = createBeep(audioContext, 659.25, 0.3);
+            sounds.click = createBeep(audioContext, 440, 0.1);
+            sounds.notification = createBeep(audioContext, 349.23, 0.2);
+        }
+
+        function createBeep(audioContext, frequency, duration) {
+            return function() {
+                if (!soundEnabled) return;
+                
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = frequency;
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration);
             };
-            updateServerStats(stats);
-            
-            // Update stats periodically for dynamic feel
-            setInterval(() => {
-                const change = Math.floor(Math.random() * 6) - 2;
-                stats.onlineUsers = Math.max(15, stats.onlineUsers + change);
-                updateServerStats(stats);
-            }, 12000);
-            
-            console.log('Frontend-only mode initialized');
-        }
-            
-            gameState.socket.on('connect', () => {
-                console.log('Connected to server');
-                gameState.reconnectAttempts = 0;
-                updateConnectionStatus(true);
-                showToast('Connected to server!', 'success');
-            });
-
-            gameState.socket.on('disconnect', (reason) => {
-                console.log('Disconnected from server:', reason);
-                updateConnectionStatus(false);
-                if (gameState.reconnectAttempts < gameState.maxReconnectAttempts) {
-                    gameState.reconnectAttempts++;
-                    showToast(`Reconnecting... (${gameState.reconnectAttempts}/${gameState.maxReconnectAttempts})`, 'warning');
-                } else {
-                    showToast('Connection lost. Please refresh the page.', 'error');
-                }
-            });
-
-            gameState.socket.on('connect_error', (error) => {
-                console.log('Connection error:', error);
-                updateConnectionStatus(false);
-                showToast('Failed to connect to server', 'error');
-            });
-
-            gameState.socket.on('partyCreated', ({ code, party }) => {
-                gameState.currentParty = party;
-                gameState.isHost = true;
-                gameState.language = party.language;
-                applySettings();
-
-                document.getElementById('partyCodeDisplay').textContent = code;
-                updatePlayerList();
-                showScreen('partyLobby');
-                
-                document.getElementById('hostControls').classList.remove('hidden');
-                document.getElementById('playerControls').classList.add('hidden');
-
-                startAutoStartTimer();
-                playSound('success');
-                showToast('Party created successfully!');
-            });
-
-            gameState.socket.on('joinedParty', ({ party }) => {
-                gameState.currentParty = party;
-                gameState.isHost = false;
-                gameState.language = party.language;
-                applySettings();
-
-                document.getElementById('partyCodeDisplay').textContent = party.code;
-                updatePlayerList();
-                showScreen('partyLobby');
-                
-                document.getElementById('hostControls').classList.add('hidden');
-                document.getElementById('playerControls').classList.remove('hidden');
-
-                playSound('success');
-                showToast('Joined party successfully!');
-            });
-
-            gameState.socket.on('joinError', (message) => {
-                showToast(message, 'error');
-            });
-
-            gameState.socket.on('playerJoined', ({ player, party }) => {
-                gameState.currentParty = party;
-                updatePlayerList();
-                showToast(`${player.username} joined the party!`);
-            });
-
-            gameState.socket.on('playerLeft', ({ party }) => {
-                gameState.currentParty = party;
-                updatePlayerList();
-            });
-
-            gameState.socket.on('gameStarted', ({ party }) => {
-                gameState.currentParty = party;
-                gameState.gameStarted = true;
-                gameState.currentQuestion = 0;
-                gameState.score = 0;
-                generateQuestions();
-                showScreen('gameScreen');
-                startQuestion();
-                playSound('gameStart');
-            });
-
-            gameState.socket.on('partyExpired', () => {
-                showToast('Party has expired', 'error');
-                returnToMainMenu();
-            });
-
-            gameState.socket.on('serverStats', (stats) => {
-                updateServerStats(stats);
-            });
-
-            gameState.socket.on('quickPlayMatch', ({ party }) => {
-                gameState.currentParty = party;
-                gameState.isHost = false;
-                gameState.language = party.language;
-                applySettings();
-
-                document.getElementById('partyCodeDisplay').textContent = party.code;
-                updatePlayerList();
-                showScreen('partyLobby');
-                
-                document.getElementById('hostControls').classList.add('hidden');
-                document.getElementById('playerControls').classList.remove('hidden');
-
-                playSound('success');
-                showToast('Quick Play match found!');
-            });
-
-            gameState.socket.on('leaderboardData', (leaderboard) => {
-                displayLeaderboard(leaderboard);
-            });
-
-            gameState.socket.on('quickPlayTimeout', () => {
-                showToast('Quick play timeout. Try again.', 'warning');
-            });
         }
 
-        function updateConnectionStatus(isConnected) {
-            const indicator = document.getElementById('connectionIndicator');
-            const text = document.getElementById('connectionText');
-            
-            if (isConnected) {
-                indicator.classList.add('online');
-                indicator.classList.remove('offline');
-                text.textContent = 'Connected';
-                
-                gameState.socket.emit('requestStats');
-            } else {
-                indicator.classList.remove('online');
-                indicator.classList.add('offline');
-                text.textContent = 'Offline';
+        function playSound(soundType) {
+            if (sounds[soundType] && soundEnabled) {
+                sounds[soundType]();
             }
-        }
-
-        function updateServerStats(stats) {
-            if (document.getElementById('onlineCount')) {
-                document.getElementById('onlineCount').textContent = stats.onlineUsers || '...';
-            }
-            if (document.getElementById('gamesPlayed')) {
-                document.getElementById('gamesPlayed').textContent = stats.gamesToday || '0';
-            }
-            if (document.getElementById('activeParties')) {
-                document.getElementById('activeParties').textContent = stats.activeParties || '0';
-            }
-        }
-
-        function startPracticeMode() {
-            gameState.isPracticeMode = true;
-            gameState.currentPlayer = {
-                username: userData.username,
-                id: 'practice-player',
-                isHost: true,
-                device: getDeviceInfo(),
-                avatar: userData.avatar
-            };
-            gameState.language = 'en';
-            gameState.category = 'general';
-            gameState.difficulty = 'random';
-            
-            showToast('Starting Practice Mode...', 'success');
-            playSound('gameStart');
-            
-            // Generate practice questions
-            generateQuestions();
-            gameState.currentQuestion = 0;
-            gameState.score = 0;
-            gameState.gameStarted = true;
-            
-            showScreen('gameScreen');
-            startQuestion();
-        }
-
-        function showQuickPlay() {
-            if (!gameState.socket || !gameState.socket.connected) {
-                showToast('Not connected to server. Please refresh the page.', 'error');
-                return;
-            }
-
-            showToast('Searching for quick play match...', 'warning');
-            
-            const playerData = {
-                username: userData.username,
-                device: getDeviceInfo(),
-                avatar: userData.avatar && userData.avatar.startsWith('data:image/') ? userData.avatar : userData.username.charAt(0).toUpperCase()
-            };
-
-            gameState.socket.emit('quickPlay', playerData);
-        }
-
-        function showLeaderboard() {
-            // Simulate leaderboard data for frontend-only mode
-            const mockLeaderboard = [
-                { rank: 1, username: 'QuizMaster', xp: 2500, level: 15, gamesPlayed: 45 },
-                { rank: 2, username: 'BrainPower', xp: 2200, level: 13, gamesPlayed: 38 },
-                { rank: 3, username: 'SmartPlayer', xp: 1900, level: 11, gamesPlayed: 32 },
-                { rank: 4, username: userData.username, xp: userData.xp, level: userData.level, gamesPlayed: 15 },
-                { rank: 5, username: 'FactFinder', xp: 1600, level: 9, gamesPlayed: 28 }
-            ];
-            
-            displayLeaderboard(mockLeaderboard);
-            showScreen('leaderboardScreen');
-        }
-
-
-        function displayLeaderboard(leaderboard) {
-            const content = document.getElementById('leaderboardContent');
-            
-            if (leaderboard.length === 0) {
-                content.innerHTML = `
-                    <div class="text-center">
-                        <div class="text-xl">No players on leaderboard yet</div>
-                        <div class="text-secondary mt-2">Be the first to play and claim the top spot!</div>
-                    </div>
-                `;
-                return;
-            }
-
-            let html = '<div class="leaderboard-list">';
-            
-            leaderboard.forEach((player, index) => {
-                const medal = index < 3 ? ['🥇', '🥈', '🥉'][index] : `#${player.rank}`;
-                const levelName = getLevelName(player.level);
-                
-                html += `
-                    <div class="leaderboard-item ${index < 3 ? 'top-three' : ''}">
-                        <div class="rank">${medal}</div>
-                        <div class="player-info">
-                            <div class="player-name">${player.username}</div>
-                            <div class="player-stats">Level ${player.level} ${levelName} • ${player.xp} XP • ${player.gamesPlayed} games</div>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            html += '</div>';
-            content.innerHTML = html;
         }
 
         function loadUserData() {
-            const saved = localStorage.getItem('quizMasterUser');
-            if (saved) {
-                userData = {...userData, ...JSON.parse(saved)};
+            const savedUser = localStorage.getItem('quizMasterUser');
+            if (savedUser) {
+                currentUser = { ...currentUser, ...JSON.parse(savedUser) };
+            } else {
+                currentUser.username = generateGuestUsername();
             }
-            if (!userData.username) {
-                userData.username = `Guest_${Math.floor(Math.random() * 9999)}`;
+            
+            if (!currentUser.username) {
+                currentUser.username = generateGuestUsername();
             }
-            applySettings();
         }
 
         function saveUserData() {
-            localStorage.setItem('quizMasterUser', JSON.stringify(userData));
+            localStorage.setItem('quizMasterUser', JSON.stringify(currentUser));
         }
 
-        function applySettings() {
-            document.body.setAttribute('data-theme', userData.settings?.darkMode ? 'dark' : 'light');
-            document.body.setAttribute('data-accessibility', userData.settings?.accessibility ? 'true' : 'false');
-            document.body.setAttribute('data-rtl', gameState.language === 'ar' ? 'true' : 'false');
+        function generateGuestUsername() {
+            return 'Guest_' + Math.floor(Math.random() * 9999).toString().padStart(4, '0');
         }
 
-        function setupEventListeners() {
-            document.getElementById('partyCodeInput').addEventListener('input', function(e) {
-                e.target.value = e.target.value.replace(/[^0-9]/g, '').substring(0, 4);
-            });
-
-            document.getElementById('answerInput').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter' && !e.target.disabled) {
-                    submitAnswer();
-                }
-            });
-
-            document.getElementById('usernameInput').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    changeUsername();
-                }
-            });
-
-            window.addEventListener('beforeunload', function() {
-                if (gameState.currentParty) {
-                    leaveParty();
-                }
-            });
+        function generatePartyCode() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let result = '';
+            for (let i = 0; i < 6; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
         }
 
-        function checkURLParams() {
+        function validateUsername(username) {
+            if (!username || username.length < 3 || username.length > 12) {
+                return { valid: false, message: 'Username must be 3-12 characters' };
+            }
+            
+            const validChars = /^[a-zA-Z\u0600-\u06FF]+$/;
+            if (!validChars.test(username)) {
+                return { valid: false, message: 'Only English and Arabic letters allowed' };
+            }
+            
+            const lowerUsername = username.toLowerCase();
+            for (let word of badWords) {
+                if (lowerUsername.includes(word)) {
+                    return { valid: false, message: 'Inappropriate username' };
+                }
+            }
+            
+            return { valid: true };
+        }
+
+        function updateUsername() {
+            const newUsername = document.getElementById('username-input').value.trim();
+            const validation = validateUsername(newUsername);
+            
+            if (!validation.valid) {
+                if (validation.message === 'Inappropriate username') {
+                    handleInappropriateUsername();
+                } else {
+                    showNotification(validation.message, 'error');
+                }
+                return;
+            }
+            
+            currentUser.username = newUsername;
+            currentUser.usernameChanges++;
+            currentUser.lastUsernameChange = Date.now();
+            saveUserData();
+            updateUI();
+            showNotification('Username updated successfully!', 'success');
+            playSound('notification');
+        }
+
+        function handleInappropriateUsername() {
+            currentUser.usernameChanges++;
+            const changes = currentUser.usernameChanges;
+            
+            if (changes === 1) {
+                showNotification('Warning: Inappropriate username', 'warning');
+            } else if (changes === 2) {
+                showNotification('5-minute cooldown applied', 'error');
+                setTimeout(() => {
+                    currentUser.usernameChanges = 0;
+                }, 5 * 60 * 1000);
+            } else if (changes === 3) {
+                showNotification('1-day cooldown applied', 'error');
+                setTimeout(() => {
+                    currentUser.usernameChanges = 0;
+                }, 24 * 60 * 60 * 1000);
+            } else {
+                currentUser.isBanned = true;
+                showNotification('Username changes banned', 'error');
+            }
+            
+            saveUserData();
+        }
+
+        function addXP(amount) {
+            currentUser.xp += amount;
+            const oldLevel = currentUser.level;
+            
+            while (currentUser.xp >= getXPNeeded(currentUser.level)) {
+                currentUser.xp -= getXPNeeded(currentUser.level);
+                currentUser.level++;
+            }
+            
+            if (currentUser.level > oldLevel) {
+                showLevelUp();
+                updateRank();
+            }
+            
+            saveUserData();
+            updateUI();
+        }
+
+        function getXPNeeded(level) {
+            let base = 100;
+            let multiplier = 1;
+            
+            if (level <= 5) multiplier = 1.15;
+            else if (level <= 10) multiplier = 1.25;
+            else multiplier = 1.4;
+            
+            return Math.floor(base * Math.pow(multiplier, level - 1));
+        }
+
+        function showLevelUp() {
+            const avatar = document.getElementById('profile-avatar');
+            avatar.classList.add('level-up');
+            setTimeout(() => avatar.classList.remove('level-up'), 1000);
+            playSound('levelUp');
+            showNotification(`Level Up! You are now level ${currentUser.level}`, 'success');
+        }
+
+        function updateRank() {
+            const ranks = ['Rookie', 'Amateur', 'Pro', 'Expert', 'Master', 'Grandmaster', 'Legend', 'Mythic'];
+            const rankIndex = Math.floor((currentUser.level - 1) / 10);
+            currentUser.rank = ranks[Math.min(rankIndex, ranks.length - 1)];
+        }
+
+        function addCoins(amount) {
+            currentUser.coins += amount;
+            saveUserData();
+            updateUI();
+        }
+
+        function detectDevice() {
+            const userAgent = navigator.userAgent;
+            let deviceName = 'Unknown';
+            let deviceIcon = '💻';
+            
+            if (/iPhone/.test(userAgent)) {
+                deviceName = 'iPhone';
+                deviceIcon = '📱';
+            } else if (/iPad/.test(userAgent)) {
+                deviceName = 'iPad';
+                deviceIcon = '📱';
+            } else if (/Android/.test(userAgent) && /Mobile/.test(userAgent)) {
+                deviceName = 'Android Phone';
+                deviceIcon = '📱';
+            } else if (/Android/.test(userAgent)) {
+                deviceName = 'Android Tablet';
+                deviceIcon = '📱';
+            } else if (/Windows/.test(userAgent)) {
+                deviceName = 'Windows PC';
+                deviceIcon = '💻';
+            } else if (/Mac/.test(userAgent)) {
+                deviceName = 'Mac';
+                deviceIcon = '💻';
+            }
+            
+            document.getElementById('device-name').textContent = deviceIcon + ' ' + deviceName;
+        }
+
+        function loadSettings() {
+            const settings = JSON.parse(localStorage.getItem('quizMasterSettings') || '{}');
+            
+            if (settings.darkMode) {
+                document.body.classList.add('dark-mode');
+                document.getElementById('dark-mode-toggle').classList.add('active');
+            }
+            
+            if (settings.accessibility) {
+                document.body.classList.add('accessibility-mode');
+                document.getElementById('accessibility-toggle').classList.add('active');
+            }
+            
+            if (settings.highContrast) {
+                document.body.classList.add('high-contrast');
+                document.getElementById('contrast-toggle').classList.add('active');
+            }
+            
+            if (settings.soundEnabled !== undefined) {
+                soundEnabled = settings.soundEnabled;
+                if (!soundEnabled) {
+                    document.getElementById('sound-toggle').classList.remove('active');
+                }
+            }
+            
+            if (settings.language) {
+                gameState.language = settings.language;
+                document.getElementById('game-language').value = settings.language;
+            }
+        }
+
+        function saveSettings() {
+            const settings = {
+                darkMode: document.body.classList.contains('dark-mode'),
+                accessibility: document.body.classList.contains('accessibility-mode'),
+                highContrast: document.body.classList.contains('high-contrast'),
+                soundEnabled: soundEnabled,
+                language: gameState.language
+            };
+            localStorage.setItem('quizMasterSettings', JSON.stringify(settings));
+        }
+
+        function checkUrlParams() {
             const urlParams = new URLSearchParams(window.location.search);
             const joinCode = urlParams.get('join');
-            if (joinCode && joinCode.length === 4) {
-                document.getElementById('partyCodeInput').value = joinCode;
+            if (joinCode) {
+                document.getElementById('party-code-input').value = joinCode;
                 showJoinParty();
             }
         }
 
-        function generatePartyCode() {
-            return Math.floor(1000 + Math.random() * 9000).toString();
+        function updateUI() {
+            document.getElementById('username-input').value = currentUser.username;
+            document.getElementById('avatar-letter').textContent = currentUser.username.charAt(0).toUpperCase();
+            document.getElementById('player-level').textContent = currentUser.level;
+            document.getElementById('player-xp').textContent = currentUser.xp;
+            document.getElementById('player-coins').textContent = currentUser.coins;
+            document.getElementById('player-rank').textContent = currentUser.rank;
+            
+            const xpNeeded = getXPNeeded(currentUser.level);
+            const xpProgress = (currentUser.xp / xpNeeded) * 100;
+            document.getElementById('xp-progress').style.width = xpProgress + '%';
         }
 
-        function showScreen(screenName, navBtn = null) {
+        function showTab(tabName) {
+            playSound('click');
             document.querySelectorAll('.screen').forEach(screen => {
                 screen.classList.remove('active');
             });
-            document.getElementById(screenName).classList.add('active');
-            gameState.currentScreen = screenName;
-
-            if (navBtn) {
-                document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-                navBtn.classList.add('active');
-            }
-
-            playSound('menu');
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(tabName + '-screen').classList.add('active');
+            document.getElementById('tab-' + tabName).classList.add('active');
         }
 
-        function showMainMenu() {
-            showScreen('mainMenu');
+        function showMain() {
+            showTab('main');
         }
 
         function showCreateParty() {
-            showToast('Multiplayer coming soon! Try Practice Mode for now.', 'info');
+            playSound('click');
+            document.getElementById('main-screen').classList.remove('active');
+            document.getElementById('create-party-screen').classList.add('active');
         }
 
         function showJoinParty() {
-            showToast('Multiplayer coming soon! Try Practice Mode for now.', 'info');
+            playSound('click');
+            document.getElementById('main-screen').classList.remove('active');
+            document.getElementById('join-party-screen').classList.add('active');
         }
 
         function createParty() {
-            const playerCount = parseInt(document.getElementById('playerCount').value);
-            const language = document.getElementById('language').value;
-            const category = document.getElementById('category').value;
-            const difficulty = document.getElementById('difficulty').value;
-
-            if (!gameState.socket || !gameState.socket.connected) {
-                showToast('Not connected to server. Please refresh the page.', 'error');
-                return;
-            }
-
-            const partyData = {
-                host: userData.username,
-                hostDevice: getDeviceInfo(),
-                hostAvatar: userData.avatar && userData.avatar.startsWith('data:image/') ? userData.avatar : userData.username.charAt(0).toUpperCase(),
-                maxPlayers: playerCount,
+            playSound('click');
+            const maxPlayers = parseInt(document.getElementById('max-players').value);
+            const language = document.getElementById('game-language').value;
+            const category = document.getElementById('quiz-category').value;
+            const difficulty = document.getElementById('quiz-difficulty').value;
+            
+            const partyCode = generatePartyCode();
+            const party = {
+                code: partyCode,
+                host: currentUser.username,
+                maxPlayers: maxPlayers,
+                players: [currentUser],
                 language: language,
                 category: category,
-                difficulty: difficulty
+                difficulty: difficulty,
+                created: Date.now(),
+                gameStarted: false
             };
-
-            gameState.socket.emit('createParty', partyData);
+            
+            parties.set(partyCode, party);
+            gameState.currentParty = partyCode;
+            gameState.isHost = true;
+            gameState.language = language;
+            
+            document.getElementById('current-party-code').textContent = partyCode;
+            const inviteLink = window.location.origin + window.location.pathname + '?join=' + partyCode;
+            document.getElementById('invite-link-display').textContent = 'Invite Link: ' + inviteLink;
+            
+            updatePlayerList();
+            showPartyLobby();
+            startPartyTimer();
         }
 
         function joinParty() {
-            const partyCode = document.getElementById('partyCodeInput').value;
-            if (partyCode.length !== 4) {
-                showToast('Please enter a valid 4-digit party code', 'error');
+            playSound('click');
+            const partyCode = document.getElementById('party-code-input').value.toUpperCase().trim();
+            
+            if (!partyCode) {
+                showNotification('Please enter a party code', 'error');
                 return;
             }
-
-            if (!gameState.socket || !gameState.socket.connected) {
-                showToast('Not connected to server. Please refresh the page.', 'error');
+            
+            const party = parties.get(partyCode);
+            if (!party) {
+                showNotification('Party not found', 'error');
                 return;
             }
-
-            const joinData = {
-                code: partyCode,
-                username: userData.username,
-                device: getDeviceInfo(),
-                avatar: userData.avatar && userData.avatar.startsWith('data:image/') ? userData.avatar : userData.username.charAt(0).toUpperCase()
-            };
-
-            gameState.socket.emit('joinParty', joinData);
+            
+            if (party.players.length >= party.maxPlayers) {
+                showNotification('Party is full', 'error');
+                return;
+            }
+            
+            if (party.gameStarted) {
+                showNotification('Game already started', 'error');
+                return;
+            }
+            
+            party.players.push(currentUser);
+            gameState.currentParty = partyCode;
+            gameState.isHost = false;
+            gameState.language = party.language;
+            
+            document.getElementById('current-party-code').textContent = partyCode;
+            const inviteLink = window.location.origin + window.location.pathname + '?join=' + partyCode;
+            document.getElementById('invite-link-display').textContent = 'Invite Link: ' + inviteLink;
+            
+            updatePlayerList();
+            showPartyLobby();
         }
 
-
+        function showPartyLobby() {
+            document.getElementById('join-party-screen').classList.remove('active');
+            document.getElementById('create-party-screen').classList.remove('active');
+            document.getElementById('party-lobby-screen').classList.add('active');
+            
+            if (!gameState.isHost) {
+                document.getElementById('host-controls').style.display = 'none';
+            }
+            
+            applyLanguage();
+        }
 
         function updatePlayerList() {
-            const playerList = document.getElementById('playerList');
-            const playerCounter = document.getElementById('playerCounter');
-            const startGameBtn = document.getElementById('startGameBtn');
-
-            playerList.innerHTML = '';
-            gameState.currentParty.players.forEach(player => {
-                const li = document.createElement('li');
-                li.className = 'player-item';
-                
-                const avatarDiv = document.createElement('div');
-                avatarDiv.className = 'avatar';
-                
-                if (player.avatar && player.avatar.startsWith('data:image/')) {
-                    avatarDiv.style.backgroundImage = `url(${player.avatar})`;
-                    avatarDiv.style.backgroundSize = 'cover';
-                    avatarDiv.style.backgroundPosition = 'center';
-                    avatarDiv.textContent = '';
-                } else {
-                    avatarDiv.textContent = player.avatar;
-                }
-                
-                li.innerHTML = `
-                    <div>
-                        <div class="font-bold">${player.username}</div>
-                        <div class="text-secondary">${player.isHost ? 'Host' : 'Player'}</div>
-                    </div>
-                    <div class="device-icon">${DEVICE_ICONS[player.device] || '💻'}</div>
-                `;
-                li.insertBefore(avatarDiv, li.firstChild);
-                playerList.appendChild(li);
-            });
-
-            playerCounter.textContent = `${gameState.currentParty.players.length}/${gameState.currentParty.maxPlayers}`;
+            const party = parties.get(gameState.currentParty);
+            if (!party) return;
             
-            if (startGameBtn) {
-                startGameBtn.disabled = gameState.currentParty.players.length < 2;
-            }
+            const playerList = document.getElementById('player-list');
+            playerList.innerHTML = `<h3>Players (${party.players.length}/${party.maxPlayers})</h3>`;
+            
+            party.players.forEach((player, index) => {
+                const playerDiv = document.createElement('div');
+                playerDiv.className = 'player';
+                
+                const isHost = index === 0;
+                const hostBadge = isHost ? ' 👑' : '';
+                
+                playerDiv.innerHTML = `
+                    <div class="avatar">
+                        <span>${player.username.charAt(0).toUpperCase()}</span>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: bold;">${player.username}${hostBadge}</div>
+                        <div style="font-size: 0.9em; opacity: 0.8;">Level ${player.level || 1}</div>
+                    </div>
+                    <div class="device-icon">💻</div>
+                    ${gameState.isHost && !isHost ? '<button class="btn danger" onclick="kickPlayer(' + index + ')">Kick</button>' : ''}
+                `;
+                
+                playerList.appendChild(playerDiv);
+            });
         }
 
-        function startAutoStartTimer() {
+        function kickPlayer(playerIndex) {
+            const party = parties.get(gameState.currentParty);
+            if (!party || !gameState.isHost || playerIndex === 0) return;
+            
+            party.players.splice(playerIndex, 1);
+            updatePlayerList();
+            showNotification('Player kicked', 'warning');
+        }
+
+        function startPartyTimer() {
             let timeLeft = 300;
-            const autoStartTimer = document.getElementById('autoStartTimer');
-            const autoStartProgress = document.getElementById('autoStartProgress');
-            const autoStartCountdown = document.getElementById('autoStartCountdown');
-
-            autoStartCountdown.classList.remove('hidden');
-
-            const interval = setInterval(() => {
+            const countdown = document.getElementById('lobby-countdown');
+            
+            const timer = setInterval(() => {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                countdown.textContent = `Auto-start in ${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
                 timeLeft--;
-                autoStartTimer.textContent = formatTime(timeLeft);
-                autoStartProgress.style.width = `${((300 - timeLeft) / 300) * 100}%`;
-
-                if (timeLeft <= 0 || gameState.gameStarted) {
-                    clearInterval(interval);
-                    if (!gameState.gameStarted && gameState.currentParty.players.length >= 2) {
+                
+                if (timeLeft < 0) {
+                    clearInterval(timer);
+                    if (gameState.isHost) {
                         startGame();
                     }
                 }
@@ -1928,599 +1422,361 @@
         }
 
         function startGame() {
-            if (!gameState.isHost) {
-                showToast('Only the host can start the game', 'error');
+            playSound('click');
+            const party = parties.get(gameState.currentParty);
+            if (!party || party.players.length < 2) {
+                showNotification('Need at least 2 players to start', 'error');
                 return;
             }
-
-            if (gameState.currentParty.players.length < 2) {
-                showToast('Need at least 2 players to start', 'error');
-                return;
-            }
-
-            if (!gameState.socket || !gameState.socket.connected) {
-                showToast('Not connected to server. Please refresh the page.', 'error');
-                return;
-            }
-
-            gameState.socket.emit('startGame', gameState.currentParty.code);
-        }
-
-        function generateQuestions() {
-            const category = gameState.currentParty.category;
-            const difficulty = gameState.currentParty.difficulty;
-            const bank = QUESTION_BANKS[category] || QUESTION_BANKS.general;
             
-            gameState.questions = [];
+            party.gameStarted = true;
+            gameState.gameStarted = true;
+            gameState.currentQuestion = 0;
+            gameState.score = 0;
+            gameState.streak = 0;
+            gameState.answers = [];
             
-            for (let i = 0; i < 10; i++) {
-                let selectedDifficulty = difficulty;
-                if (difficulty === 'random') {
-                    const difficulties = ['easy', 'hard', 'impossible'];
-                    selectedDifficulty = difficulties[Math.floor(Math.random() * difficulties.length)];
-                }
-                
-                const questionBank = bank[selectedDifficulty] || bank.easy;
-                const question = questionBank[Math.floor(Math.random() * questionBank.length)];
-                
-                gameState.questions.push({
-                    ...question,
-                    difficulty: selectedDifficulty
-                });
-            }
-        }
-
-        function startQuestion() {
-            if (gameState.currentQuestion >= gameState.questions.length) {
-                endGame();
-                return;
-            }
-
-            const question = gameState.questions[gameState.currentQuestion];
-            document.getElementById('questionNumber').textContent = gameState.currentQuestion + 1;
-            document.getElementById('currentScore').textContent = gameState.score;
-            document.getElementById('questionText').textContent = question.q;
-            document.getElementById('questionDifficulty').textContent = question.difficulty.charAt(0).toUpperCase() + question.difficulty.slice(1);
-            document.getElementById('questionDifficulty').className = `difficulty-badge difficulty-${question.difficulty}`;
-
-            document.getElementById('answerPhase').classList.remove('hidden');
-            document.getElementById('optionsPhase').classList.add('hidden');
-            document.getElementById('resultPhase').classList.add('hidden');
-
-            const answerInput = document.getElementById('answerInput');
-            const submitBtn = document.getElementById('submitBtn');
+            document.getElementById('party-lobby-screen').classList.remove('active');
+            document.getElementById('game-screen').classList.add('active');
             
-            answerInput.value = '';
-            answerInput.disabled = true;
-            submitBtn.disabled = true;
-
-            setTimeout(() => {
-                answerInput.disabled = false;
-                submitBtn.disabled = false;
-                answerInput.focus();
-            }, 2000);
-
-            startTimer(10);
-        }
-
-        function startTimer(seconds) {
-            let timeLeft = seconds;
-            const timerElement = document.getElementById('questionTimer');
-            
-            const updateTimer = () => {
-                timerElement.textContent = timeLeft;
-                const percentage = (timeLeft / seconds) * 360;
-                timerElement.style.background = `conic-gradient(var(--primary-color) ${percentage}deg, var(--bg-secondary) ${percentage}deg)`;
-                
-                if (timeLeft <= 0) {
-                    clearInterval(gameState.timer);
-                    timeUp();
-                } else {
-                    timeLeft--;
-                }
-            };
-
-            updateTimer();
-            gameState.timer = setInterval(updateTimer, 1000);
-        }
-
-        function submitAnswer() {
-            const answer = document.getElementById('answerInput').value.trim().toLowerCase();
-            const question = gameState.questions[gameState.currentQuestion];
-            
-            if (!answer) {
-                showToast('Please enter an answer', 'warning');
-                return;
-            }
-
-            clearInterval(gameState.timer);
-            
-            const isCorrect = answer === question.a.toLowerCase();
-            
-            if (isCorrect) {
-                handleCorrectAnswer();
-            } else {
-                showOptionsPhase();
-            }
-        }
-
-        function timeUp() {
-            const answerInput = document.getElementById('answerInput');
-            const submitBtn = document.getElementById('submitBtn');
-            
-            answerInput.disabled = true;
-            submitBtn.disabled = true;
-            
-            if (answerInput.value.trim()) {
-                submitAnswer();
-            } else {
-                showOptionsPhase();
-            }
-        }
-
-        function handleCorrectAnswer() {
-            const question = gameState.questions[gameState.currentQuestion];
-            const coinReward = getRewardForDifficulty(question.difficulty);
-            const xpReward = coinReward * 2;
-
-            gameState.score += coinReward;
-            userData.coins += coinReward;
-            userData.xp += xpReward;
-            
-            checkLevelUp();
-            saveUserData();
-
-            document.getElementById('resultText').textContent = TRANSLATIONS[gameState.language].correct;
-            document.getElementById('resultText').style.color = 'var(--success-color)';
-            document.getElementById('rewardText').textContent = `+${coinReward} coins, +${xpReward} XP`;
-
-            document.getElementById('answerPhase').classList.add('hidden');
-            document.getElementById('resultPhase').classList.remove('hidden');
-
-            playSound('correct');
-            createParticles();
-
-            setTimeout(() => {
-                nextQuestion();
-            }, 2000);
-        }
-
-        function showOptionsPhase() {
-            const question = gameState.questions[gameState.currentQuestion];
-            const options = generateOptions(question);
-            
-            document.getElementById('answerPhase').classList.add('hidden');
-            document.getElementById('optionsPhase').classList.remove('hidden');
-            
-            const optionsGrid = document.getElementById('optionsGrid');
-            optionsGrid.innerHTML = '';
-            
-            options.forEach((option, index) => {
-                const button = document.createElement('button');
-                button.className = 'option-btn';
-                button.textContent = option;
-                button.onclick = () => selectOption(option, question.a);
-                optionsGrid.appendChild(button);
-            });
-        }
-
-        function generateOptions(question) {
-            const correctAnswer = question.a;
-            const wrongAnswers = [
-                'Wrong Answer 1',
-                'Wrong Answer 2', 
-                'Wrong Answer 3',
-                'Wrong Answer 4'
-            ];
-            
-            const options = [correctAnswer, ...wrongAnswers.slice(0, 4)];
-            return shuffleArray(options);
-        }
-
-        function selectOption(selected, correct) {
-            const buttons = document.querySelectorAll('.option-btn');
-            buttons.forEach(btn => {
-                btn.disabled = true;
-                if (btn.textContent === correct) {
-                    btn.classList.add('correct');
-                } else if (btn.textContent === selected && selected !== correct) {
-                    btn.classList.add('wrong');
-                }
-            });
-
-            const isCorrect = selected === correct;
-            
-            setTimeout(() => {
-                if (isCorrect) {
-                    handleCorrectAnswer();
-                } else {
-                    handleWrongAnswer();
-                }
-            }, 1000);
-        }
-
-        function handleWrongAnswer() {
-            document.getElementById('resultText').textContent = TRANSLATIONS[gameState.language].wrong;
-            document.getElementById('resultText').style.color = 'var(--error-color)';
-            document.getElementById('rewardText').textContent = '+0 coins, +0 XP';
-
-            document.getElementById('optionsPhase').classList.add('hidden');
-            document.getElementById('resultPhase').classList.remove('hidden');
-
-            playSound('wrong');
-
-            setTimeout(() => {
-                nextQuestion();
-            }, 2000);
+            nextQuestion();
         }
 
         function nextQuestion() {
+            if (gameState.currentQuestion >= 10) {
+                endGame();
+                return;
+            }
+            
             gameState.currentQuestion++;
-            startQuestion();
-        }
-
-        function endGame() {
-            showScreen('gameEnd');
-            displayFinalScores();
-            startEndCountdown();
-            playSound('gameEnd');
-        }
-
-        function displayFinalScores() {
-            const finalScores = document.getElementById('finalScores');
-            const players = [...gameState.currentParty.players];
+            gameState.timeLeft = 10;
             
-            players.forEach(player => {
-                if (player.username === userData.username) {
-                    player.score = gameState.score;
-                } else {
-                    player.score = Math.floor(Math.random() * 50) + 10;
-                }
-            });
-
-            players.sort((a, b) => b.score - a.score);
-
-            finalScores.innerHTML = '';
-            players.forEach((player, index) => {
-                const div = document.createElement('div');
-                div.className = `score-item ${index === 0 ? 'winner' : ''}`;
-                div.innerHTML = `
-                    <div class="flex">
-                        <div class="avatar">${player.avatar}</div>
-                        <div>
-                            <div class="font-bold">${player.username}</div>
-                            <div>${index === 0 ? '🏆 Winner!' : `#${index + 1}`}</div>
-                        </div>
-                    </div>
-                    <div class="text-xl font-bold">${player.score}</div>
-                `;
-                finalScores.appendChild(div);
-            });
+            const party = parties.get(gameState.currentParty);
+            const questions_category = questions[party.category] || questions.sports;
+            const difficulty = party.difficulty === 'random' ? 
+                ['easy', 'hard', 'impossible'][Math.floor(Math.random() * 3)] : 
+                party.difficulty;
+            
+            const questionPool = questions_category[difficulty] || questions_category.easy;
+            const currentQ = questionPool[Math.floor(Math.random() * questionPool.length)];
+            
+            document.getElementById('current-question').textContent = gameState.currentQuestion;
+            document.getElementById('current-score').textContent = gameState.score;
+            document.getElementById('current-streak').textContent = gameState.streak;
+            document.getElementById('question-text').innerHTML = currentQ.question + 
+                `<span class="difficulty-badge difficulty-${difficulty}">${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}</span>`;
+            
+            const answerInput = document.getElementById('answer-input');
+            answerInput.value = '';
+            answerInput.disabled = true;
+            answerInput.placeholder = 'Wait for countdown...';
+            
+            document.getElementById('options-container').classList.add('hidden');
+            
+            setTimeout(() => {
+                answerInput.disabled = false;
+                answerInput.placeholder = 'Enter your answer...';
+                answerInput.focus();
+                startQuestionTimer(currentQ, difficulty);
+            }, 2000);
         }
 
-        function startEndCountdown() {
-            let timeLeft = 30;
-            const countdown = document.getElementById('endCountdown');
+        function startQuestionTimer(question, difficulty) {
+            let timeLeft = 10;
+            const timerDisplay = document.getElementById('timer-display');
             
-            const interval = setInterval(() => {
-                countdown.textContent = timeLeft;
+            const timer = setInterval(() => {
+                timerDisplay.textContent = timeLeft;
+                const percentage = (timeLeft / 10) * 360;
+                timerDisplay.style.background = `conic-gradient(#e74c3c ${360 - percentage}deg, #3498db ${360 - percentage}deg)`;
+                
                 timeLeft--;
                 
                 if (timeLeft < 0) {
-                    clearInterval(interval);
-                    returnToMainMenu();
+                    clearInterval(timer);
+                    submitAnswer(question, difficulty);
+                }
+            }, 1000);
+            
+            document.getElementById('answer-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    clearInterval(timer);
+                    submitAnswer(question, difficulty);
+                }
+            }, { once: true });
+        }
+
+        function submitAnswer(question, difficulty) {
+            const userAnswer = document.getElementById('answer-input').value.trim().toLowerCase();
+            const correctAnswer = question.answer.toLowerCase();
+            const isCorrect = userAnswer === correctAnswer;
+            
+            if (isCorrect) {
+                gameState.streak++;
+                const basePoints = difficulty === 'easy' ? 5 : difficulty === 'hard' ? 7 : 9;
+                const streakBonus = Math.floor(gameState.streak / 3);
+                const points = basePoints + streakBonus;
+                
+                gameState.score += points;
+                addXP(points * 2);
+                addCoins(basePoints);
+                
+                playSound('correct');
+                showNotification(`Correct! +${points} points`, 'success');
+                
+                setTimeout(() => nextQuestion(), 2000);
+            } else {
+                gameState.streak = 0;
+                playSound('wrong');
+                showMultipleChoice(question);
+            }
+            
+            document.getElementById('answer-input').disabled = true;
+        }
+
+        function showMultipleChoice(question) {
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.classList.remove('hidden');
+            optionsContainer.innerHTML = '';
+            
+            const shuffledOptions = [...question.options].sort(() => Math.random() - 0.5);
+            
+            shuffledOptions.forEach(option => {
+                const optionBtn = document.createElement('button');
+                optionBtn.className = 'option-btn';
+                optionBtn.textContent = option;
+                optionBtn.onclick = () => selectOption(option, question.answer);
+                optionsContainer.appendChild(optionBtn);
+            });
+        }
+
+        function selectOption(selectedOption, correctAnswer) {
+            const options = document.querySelectorAll('.option-btn');
+            options.forEach(btn => {
+                btn.disabled = true;
+                if (btn.textContent === correctAnswer) {
+                    btn.classList.add('correct');
+                } else if (btn.textContent === selectedOption && selectedOption !== correctAnswer) {
+                    btn.classList.add('wrong');
+                }
+            });
+            
+            if (selectedOption === correctAnswer) {
+                gameState.score += 2;
+                addXP(2);
+                addCoins(1);
+                playSound('correct');
+                showNotification('Correct! +2 points', 'success');
+            } else {
+                playSound('wrong');
+                showNotification('Wrong answer!', 'error');
+            }
+            
+            setTimeout(() => nextQuestion(), 3000);
+        }
+
+        function endGame() {
+            currentUser.totalGames++;
+            if (gameState.score > 0) {
+                currentUser.wins++;
+            }
+            saveUserData();
+            
+            document.getElementById('game-screen').classList.remove('active');
+            document.getElementById('game-results-screen').classList.add('active');
+            
+            showLeaderboard();
+            startResultsTimer();
+        }
+
+        function showLeaderboard() {
+            const party = parties.get(gameState.currentParty);
+            if (!party) return;
+            
+            const leaderboard = document.getElementById('final-leaderboard');
+            leaderboard.innerHTML = '<h3>Final Scores</h3>';
+            
+            const sortedPlayers = [...party.players].sort((a, b) => (b.score || 0) - (a.score || 0));
+            
+            sortedPlayers.forEach((player, index) => {
+                const isWinner = index === 0;
+                const item = document.createElement('div');
+                item.className = `leaderboard-item ${isWinner ? 'winner' : ''}`;
+                
+                const trophy = index === 0 ? '🏆' : index === 1 ? '🥈' : index === 2 ? '🥉' : '';
+                
+                item.innerHTML = `
+                    <div style="display: flex; align-items: center;">
+                        <span style="font-size: 1.5rem; margin-right: 10px;">${trophy}</span>
+                        <div class="avatar">
+                            <span>${player.username.charAt(0).toUpperCase()}</span>
+                        </div>
+                        <div style="margin-left: 10px;">
+                            <div style="font-weight: bold;">${player.username}</div>
+                            <div style="font-size: 0.9em; opacity: 0.8;">Level ${player.level || 1}</div>
+                        </div>
+                    </div>
+                    <div style="font-size: 1.2rem; font-weight: bold;">
+                        ${player.score || 0} pts
+                    </div>
+                `;
+                
+                leaderboard.appendChild(item);
+            });
+        }
+
+        function startResultsTimer() {
+            let timeLeft = 30;
+            const countdown = document.getElementById('results-countdown');
+            
+            const timer = setInterval(() => {
+                countdown.textContent = `Returning to lobby in ${timeLeft}s`;
+                timeLeft--;
+                
+                if (timeLeft < 0) {
+                    clearInterval(timer);
+                    returnToLobby();
                 }
             }, 1000);
         }
 
-        function returnToMainMenu() {
-            gameState.currentParty = null;
-            gameState.isHost = false;
-            gameState.gameStarted = false;
-            gameState.currentQuestion = 0;
-            gameState.score = 0;
-            showScreen('mainMenu');
+        function returnToLobby() {
+            const party = parties.get(gameState.currentParty);
+            if (party) {
+                party.gameStarted = false;
+                party.code = generatePartyCode();
+                parties.set(party.code, party);
+                parties.delete(gameState.currentParty);
+                gameState.currentParty = party.code;
+                
+                document.getElementById('current-party-code').textContent = party.code;
+                const inviteLink = window.location.origin + window.location.pathname + '?join=' + party.code;
+                document.getElementById('invite-link-display').textContent = 'Invite Link: ' + inviteLink;
+            }
+            
+            document.getElementById('game-results-screen').classList.remove('active');
+            document.getElementById('party-lobby-screen').classList.add('active');
+            
+            updatePlayerList();
+            startPartyTimer();
         }
 
         function leaveParty() {
-            if (gameState.currentParty && gameState.socket) {
-                gameState.socket.emit('leaveParty', gameState.currentParty.code);
-                gameState.currentParty = null;
-                gameState.isHost = false;
-                gameState.gameStarted = false;
-                showScreen('mainMenu');
-                playSound('menu');
-                showToast('Left party');
-            }
-        }
-
-        function copyPartyLink() {
-            const link = `${window.location.origin}${window.location.pathname}?join=${gameState.currentParty.code}`;
+            playSound('click');
+            gameState.currentParty = null;
+            gameState.isHost = false;
+            gameState.gameStarted = false;
             
-            if (navigator.share) {
-                navigator.share({
-                    title: 'Join my Quiz Party!',
-                    text: `Join my quiz party with code: ${gameState.currentParty.code}`,
-                    url: link
-                });
-            } else if (navigator.clipboard) {
-                navigator.clipboard.writeText(link).then(() => {
-                    showToast('Invite link copied to clipboard!');
-                });
-            } else {
-                const textarea = document.createElement('textarea');
-                textarea.value = link;
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-                showToast('Invite link copied to clipboard!');
-            }
-        }
-
-        function changeUsername() {
-            const newUsername = document.getElementById('usernameInput').value.trim();
-            
-            if (userData.usernameChangeBan && userData.usernameChangeBan > Date.now()) {
-                const timeLeft = Math.ceil((userData.usernameChangeBan - Date.now()) / 1000);
-                if (timeLeft > 3600) {
-                    const hoursLeft = Math.ceil(timeLeft / 3600);
-                    showToast(`Username change blocked for ${hoursLeft} more hours`, 'error');
-                } else {
-                    showToast(`Username change blocked for ${formatTime(timeLeft)} more`, 'error');
-                }
-                return;
-            }
-            
-            if (!validateUsername(newUsername)) {
-                return;
-            }
-
-            if (isInappropriateUsername(newUsername)) {
-                handleInappropriateUsername();
-                return;
-            }
-
-            userData.username = newUsername;
-            saveUserData();
-            updateProfile();
-            showToast('Username changed successfully!');
-            document.getElementById('usernameInput').value = '';
-        }
-
-        function validateUsername(username) {
-            if (username.length < 3 || username.length > 12) {
-                showToast('Username must be 3-12 characters', 'error');
-                return false;
-            }
-
-            if (!/^[a-zA-Z\u0600-\u06FF0-9_]+$/.test(username)) {
-                showToast('Username can only contain letters, numbers, and underscores', 'error');
-                return false;
-            }
-
-            return true;
-        }
-
-        function isInappropriateUsername(username) {
-            return INAPPROPRIATE_WORDS.some(word => 
-                username.toLowerCase().includes(word.toLowerCase())
-            );
-        }
-
-        function handleInappropriateUsername() {
-            userData.usernameChangeAttempts++;
-            saveUserData();
-
-            if (userData.usernameChangeAttempts === 1) {
-                showToast('Warning: Inappropriate username detected', 'warning');
-            } else if (userData.usernameChangeAttempts === 2) {
-                userData.usernameChangeBan = Date.now() + (5 * 60 * 1000);
-                showToast('5-minute cooldown applied for inappropriate username', 'error');
-            } else if (userData.usernameChangeAttempts === 3) {
-                userData.usernameChangeBan = Date.now() + (24 * 60 * 60 * 1000);
-                showToast('24-hour cooldown applied for inappropriate username', 'error');
-            } else {
-                userData.usernameChangeBan = Date.now() + (365 * 24 * 60 * 60 * 1000);
-                showToast('Username changes permanently banned', 'error');
-            }
-        }
-
-        function updateProfile() {
-            document.getElementById('profileUsername').textContent = userData.username;
-            document.getElementById('profileXP').textContent = userData.xp;
-            document.getElementById('profileLevel').textContent = userData.level;
-            document.getElementById('profileCoins').textContent = userData.coins;
-            
-            const avatar = document.getElementById('profileAvatar');
-            if (userData.avatar && userData.avatar.startsWith('data:image/')) {
-                avatar.style.backgroundImage = `url(${userData.avatar})`;
-                avatar.style.backgroundSize = 'cover';
-                avatar.style.backgroundPosition = 'center';
-                avatar.textContent = '';
-            } else {
-                avatar.style.backgroundImage = '';
-                avatar.textContent = userData.avatar || userData.username.charAt(0).toUpperCase();
-            }
-            
-            const levelName = getLevelName(userData.level);
-            document.getElementById('profileLevel').textContent = `Level ${userData.level} - ${levelName}`;
-            
-            const deviceIcon = document.getElementById('profileDevice');
-            deviceIcon.textContent = DEVICE_ICONS[getDeviceInfo()] || '💻';
-        }
-
-        function triggerAvatarUpload() {
-            document.getElementById('avatarUpload').click();
-        }
-
-        function handleAvatarUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            if (file.size > 2 * 1024 * 1024) {
-                showToast('Image too large. Please use an image under 2MB', 'error');
-                return;
-            }
-
-            if (!file.type.match(/image\/(jpeg|jpg|png)/)) {
-                showToast('Please upload a JPG or PNG image', 'error');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                userData.avatar = e.target.result;
-                saveUserData();
-                updateProfile();
-                showToast('Profile picture updated successfully!');
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function checkLevelUp() {
-            const newLevel = calculateLevel(userData.xp);
-            if (newLevel > userData.level) {
-                userData.level = newLevel;
-                playSound('levelUp');
-                showToast(`Level up! You are now level ${newLevel}!`, 'success');
-                createParticles();
-            }
-        }
-
-        function calculateLevel(xp) {
-            let level = 1;
-            let requiredXP = 100;
-            let totalXP = 0;
-            
-            while (totalXP + requiredXP <= xp) {
-                totalXP += requiredXP;
-                level++;
-                requiredXP = Math.floor(requiredXP * (1.15 + (level * 0.05)));
-            }
-            
-            return level;
-        }
-
-        function getLevelName(level) {
-            if (level < 10) return TRANSLATIONS[gameState.language].rookie;
-            if (level < 25) return TRANSLATIONS[gameState.language].pro;
-            if (level < 50) return TRANSLATIONS[gameState.language].master;
-            return TRANSLATIONS[gameState.language].legend;
-        }
-
-        function getRewardForDifficulty(difficulty) {
-            switch (difficulty) {
-                case 'easy': return 5;
-                case 'hard': return 7;
-                case 'impossible': return 9;
-                default: return 5;
-            }
-        }
-
-        function getDeviceInfo() {
-            const userAgent = navigator.userAgent;
-            if (/iPhone|iPad|iPod/.test(userAgent)) return 'iPhone';
-            if (/Android/.test(userAgent)) return 'Android';
-            if (/Windows/.test(userAgent)) return 'Windows';
-            if (/Mac/.test(userAgent)) return 'Mac';
-            if (/Linux/.test(userAgent)) return 'Linux';
-            return 'Unknown';
-        }
-
-        function formatTime(seconds) {
-            const minutes = Math.floor(seconds / 60);
-            const remainingSeconds = seconds % 60;
-            return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+            showMain();
+            showNotification('Left party', 'warning');
         }
 
         function toggleDarkMode() {
-            userData.settings = userData.settings || {};
-            userData.settings.darkMode = !userData.settings.darkMode;
-            saveUserData();
-            applySettings();
-            showToast(`Dark mode ${userData.settings.darkMode ? 'enabled' : 'disabled'}`);
+            document.body.classList.toggle('dark-mode');
+            document.getElementById('dark-mode-toggle').classList.toggle('active');
+            saveSettings();
+            playSound('click');
         }
 
         function toggleAccessibility() {
-            userData.settings = userData.settings || {};
-            userData.settings.accessibility = !userData.settings.accessibility;
-            saveUserData();
-            applySettings();
-            showToast(`Accessibility mode ${userData.settings.accessibility ? 'enabled' : 'disabled'}`);
+            document.body.classList.toggle('accessibility-mode');
+            document.getElementById('accessibility-toggle').classList.toggle('active');
+            saveSettings();
+            playSound('click');
         }
 
-        function changeLanguage(lang) {
-            gameState.language = lang;
-            applySettings();
+        function toggleHighContrast() {
+            document.body.classList.toggle('high-contrast');
+            document.getElementById('contrast-toggle').classList.toggle('active');
+            saveSettings();
+            playSound('click');
         }
 
-        function shuffleArray(array) {
-            const shuffled = [...array];
-            for (let i = shuffled.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('sound-toggle').classList.toggle('active');
+            saveSettings();
+            if (soundEnabled) playSound('click');
+        }
+
+        function changeLanguage() {
+            gameState.language = document.getElementById('game-language').value;
+            saveSettings();
+            applyLanguage();
+        }
+
+        function applyLanguage() {
+            const lang = gameState.language;
+            const texts = translations[lang] || translations.en;
+            
+            Object.keys(texts).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    element.textContent = texts[key];
+                }
+            });
+            
+            if (lang === 'ar') {
+                document.body.classList.add('rtl');
+                document.documentElement.dir = 'rtl';
+            } else {
+                document.body.classList.remove('rtl');
+                document.documentElement.dir = 'ltr';
             }
-            return shuffled;
         }
 
-        function showToast(message, type = 'success') {
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.textContent = message;
-            document.body.appendChild(toast);
+        function buyItem(itemId, cost) {
+            if (currentUser.coins < cost) {
+                showNotification('Not enough coins!', 'error');
+                return;
+            }
+            
+            if (currentUser.ownedItems.includes(itemId)) {
+                showNotification('Already owned!', 'warning');
+                return;
+            }
+            
+            currentUser.coins -= cost;
+            currentUser.ownedItems.push(itemId);
+            saveUserData();
+            updateUI();
+            
+            playSound('notification');
+            showNotification('Item purchased!', 'success');
+        }
 
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
             setTimeout(() => {
-                toast.remove();
+                notification.classList.remove('show');
             }, 3000);
         }
 
-        function createParticles() {
-            for (let i = 0; i < 20; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * window.innerWidth + 'px';
-                particle.style.top = Math.random() * window.innerHeight + 'px';
-                particle.style.backgroundColor = `hsl(${Math.random() * 360}, 70%, 60%)`;
-                document.body.appendChild(particle);
-
-                setTimeout(() => {
-                    particle.remove();
-                }, 1000);
+        function cleanupExpiredParties() {
+            const now = Date.now();
+            for (let [code, party] of parties.entries()) {
+                if (now - party.created > 5 * 60 * 1000) {
+                    parties.delete(code);
+                }
             }
         }
 
-        function playSound(type) {
-            if (!window.AudioContext && !window.webkitAudioContext) return;
+        setInterval(cleanupExpiredParties, 60000);
 
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
+        document.addEventListener('DOMContentLoaded', initializeApp);
+        window.addEventListener('beforeunload', saveUserData);
 
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                saveUserData();
+            }
+        });
 
-            const frequencies = {
-                menu: 440,
-                success: 523,
-                correct: 659,
-                wrong: 220,
-                levelUp: 784,
-                gameStart: 330,
-                gameEnd: 294
-            };
-
-            oscillator.frequency.setValueAtTime(frequencies[type] || 440, audioContext.currentTime);
-            oscillator.type = 'sine';
-
-            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.5);
-        }
-
-        document.addEventListener('DOMContentLoaded', init);
+        initializeApp();
     </script>
 </body>
 </html>
