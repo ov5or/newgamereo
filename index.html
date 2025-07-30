@@ -760,32 +760,50 @@
             </div>
 
             <div class="screen" id="gameScreen">
+                <h1 id="gameTitle">Quiz Game</h1>
                 <div class="question-container">
                     <div class="question-number" id="questionNumber">Question 1/10</div>
                     <div class="difficulty-indicator" id="difficultyIndicator">Easy</div>
                     <div class="question-text" id="questionText">What is the capital of France?</div>
                     <div class="timer-container">
-                        <div class="timer-circle" id="timerCircle">10</div>
+                        <div class="timer-circle" id="timerCircle">
+                            <span id="timerText">10</span>
+                        </div>
                     </div>
                     <div id="streakIndicator" class="streak-indicator" style="display: none;">
                         <span class="streak-fire">🔥</span>
                         <span id="streakText">3x Streak!</span>
                     </div>
-                    <input type="text" class="answer-input" id="answerInput" placeholder="Type your answer...">
-                    <div class="options-container" id="optionsContainer" style="display: none;"></div>
+                    <div id="playersInfo" style="margin: 20px 0;">
+                        <div id="currentScore">Score: 0</div>
+                        <div id="answersInfo">Answers: 0/0</div>
+                    </div>
                 </div>
+                <div id="answerContainer">
+                    <input type="text" class="answer-input" id="answerInput" placeholder="Type your answer..." onkeypress="if(event.key==='Enter') submitAnswer()">
+                    <button class="btn" onclick="submitAnswer()" id="submitAnswerBtn">Submit Answer</button>
+                </div>
+                <div class="options-container" id="optionsContainer" style="display: none;"></div>
                 <button class="btn danger" onclick="leaveGame()" id="leaveGameBtn">Leave Game</button>
             </div>
 
             <div class="screen" id="resultsScreen">
                 <h1 id="resultsTitle">Game Results</h1>
-                <div class="score-board" id="scoreBoard"></div>
+                <div class="score-board" id="scoreBoard">
+                    <div style="text-align: center; padding: 20px;">
+                        <div style="font-size: 24px; margin: 10px 0;">Final Score: <span id="finalScore">0</span></div>
+                        <div style="font-size: 18px; margin: 10px 0;">Correct Answers: <span id="correctAnswers">0/0</span></div>
+                        <div style="font-size: 18px; margin: 10px 0;">Accuracy: <span id="accuracy">0%</span></div>
+                    </div>
+                </div>
                 <div id="personalStats">
                     <div id="coinsEarned">Coins Earned: 0</div>
                     <div id="xpEarned">XP Earned: 0</div>
                     <div id="levelUp" style="display: none;">Level Up!</div>
                 </div>
-                <button class="btn" onclick="returnToParty()" id="returnPartyBtn">Return to Party</button>
+                <button class="btn" onclick="returnToParty()" id="returnPartyBtn" style="display: none;">Return to Party</button>
+                <button class="btn" onclick="showMainMenu()" id="backToMenuBtn" style="display: none;">Back to Menu</button>
+                <button class="btn secondary" onclick="startPractice()" id="playAgainBtn" style="display: none;">Play Again</button>
             </div>
 
             <div class="screen" id="practiceScreen">
@@ -807,6 +825,15 @@
                         <option value="hard">Hard</option>
                         <option value="impossible">Impossible</option>
                         <option value="random">Random</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="practiceQuestionCount" id="practiceQuestionCountLabel">Number of Questions:</label>
+                    <select id="practiceQuestionCount">
+                        <option value="5">5 Questions</option>
+                        <option value="10" selected>10 Questions</option>
+                        <option value="15">15 Questions</option>
+                        <option value="20">20 Questions</option>
                     </select>
                 </div>
                 <button class="btn" onclick="startPractice()" id="startPracticeBtn">Start Practice</button>
@@ -893,8 +920,12 @@
 
     <div class="toast" id="toast"></div>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    
     <script>
-        let socket = null;
+        let database = null;
         let currentUser = {
             id: '',
             username: '',
@@ -924,6 +955,11 @@
         let answerCooldown = false;
         let badUsernameAttempts = 0;
         let usernameChangeCooldown = 0;
+        let practiceQuestions = [];
+        let currentPracticeQuestion = 0;
+        let practiceScore = 0;
+        let practiceCorrectAnswers = 0;
+        let practiceStreak = 0;
         
         const translations = {
             en: {
@@ -1017,7 +1053,7 @@
             loadUserData();
             detectDevice();
             applySettings();
-            connectWebSocket();
+            initFirebase();
             startFPSCounter();
             
             const urlParams = new URLSearchParams(window.location.search);
@@ -1028,47 +1064,25 @@
             }
         }
 
-        function connectWebSocket() {
-            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            let wsUrl;
-            
-            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                wsUrl = `${protocol}//${window.location.hostname}:5000`;
-            } else {
-                wsUrl = `${protocol}//${window.location.host}`;
-            }
-            
-            socket = new WebSocket(wsUrl);
-            
-            socket.onopen = () => {
-                console.log('Connected to server');
-                socket.send(JSON.stringify({
-                    type: 'join',
-                    data: {
-                        userId: currentUser.id,
-                        username: currentUser.username
-                    }
-                }));
+        function initFirebase() {
+            const firebaseConfig = {
+                authDomain: "newproj-97249.firebaseapp.com",
+                databaseURL: "https://newproj-97249-default-rtdb.firebaseio.com",
+                projectId: "newproj-97249",
+                storageBucket: "newproj-97249.appspot.com",
+                messagingSenderId: "290479971693",
+                appId: "1:290479971693:web:65ad3150772a307bce0e64"
             };
+
+            firebase.initializeApp(firebaseConfig);
+            database = firebase.database();
             
-            socket.onmessage = (event) => {
-                const message = JSON.parse(event.data);
-                handleServerMessage(message);
-            };
-            
-            socket.onclose = () => {
-                console.log('Disconnected from server');
-                setTimeout(() => {
-                    if (!document.getElementById('reconnectModal').classList.contains('active')) {
-                        showReconnectModal();
-                    }
-                }, 1000);
-            };
-            
-            socket.onerror = (error) => {
-                console.error('WebSocket error:', error);
-                showToast('Connection error', 'error');
-            };
+            setupFirebaseListeners();
+        }
+
+        function setupFirebaseListeners() {
+            console.log('Connected to Firebase');
+            showToast('Connected to Firebase! Note: Database permissions need to be configured for full functionality.', 'success');
         }
 
         function handleServerMessage(message) {
@@ -1167,8 +1181,14 @@
         }
 
         function updateProfileDisplay() {
-            document.getElementById('profileBtn').textContent = currentUser.username.charAt(0).toUpperCase();
-            document.getElementById('profileAvatar').textContent = currentUser.username.charAt(0).toUpperCase();
+            if (currentUser.avatar) {
+                document.getElementById('profileBtn').innerHTML = `<img src="${currentUser.avatar}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+                document.getElementById('profileAvatar').innerHTML = `<img src="${currentUser.avatar}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+            } else {
+                document.getElementById('profileBtn').textContent = currentUser.username.charAt(0).toUpperCase();
+                document.getElementById('profileAvatar').textContent = currentUser.username.charAt(0).toUpperCase();
+            }
+            
             document.getElementById('userLevel').textContent = currentUser.level;
             document.getElementById('userCoins').textContent = currentUser.coins;
             document.getElementById('userXP').textContent = currentUser.xp;
@@ -1176,6 +1196,16 @@
             const xpRequired = Math.floor(100 * Math.pow(1.5, currentUser.level - 1));
             const xpProgress = (currentUser.xp % xpRequired) / xpRequired * 100;
             document.getElementById('xpFill').style.width = xpProgress + '%';
+            
+            // Check for level up
+            if (currentUser.xp >= xpRequired && currentUser.level < 100) {
+                currentUser.level++;
+                currentUser.xp = currentUser.xp - xpRequired;
+                saveUserData();
+                showToast(`Level Up! You are now level ${currentUser.level}!`, 'success');
+                playSound('levelup');
+                updateProfileDisplay(); // Recursive call to update again
+            }
         }
 
         function changeLanguage() {
@@ -1233,25 +1263,192 @@
             showScreen('practiceScreen');
         }
 
+        function startPractice() {
+            const difficulty = document.getElementById('practiceDifficulty').value;
+            const category = document.getElementById('practiceCategory').value;
+            const questionCount = parseInt(document.getElementById('practiceQuestionCount').value);
+            
+            practiceQuestions = getRandomQuestions(category, difficulty, questionCount);
+            currentPracticeQuestion = 0;
+            practiceScore = 0;
+            practiceCorrectAnswers = 0;
+            practiceStreak = 0;
+            
+            if (practiceQuestions.length === 0) {
+                showToast('No questions available for selected settings', 'error');
+                return;
+            }
+            
+            showPracticeGame();
+        }
+
+        function showPracticeGame() {
+            showScreen('gameScreen');
+            document.getElementById('gameTitle').textContent = `Practice Mode - Question ${currentPracticeQuestion + 1}/${practiceQuestions.length}`;
+            
+            const currentQ = practiceQuestions[currentPracticeQuestion];
+            document.getElementById('questionText').textContent = currentQ.text;
+            document.getElementById('questionNumber').textContent = `Question ${currentPracticeQuestion + 1}/${practiceQuestions.length}`;
+            document.getElementById('difficultyIndicator').textContent = currentQ.difficulty.charAt(0).toUpperCase() + currentQ.difficulty.slice(1);
+            document.getElementById('difficultyIndicator').className = `difficulty-indicator difficulty-${currentQ.difficulty}`;
+            
+            document.getElementById('answerInput').value = '';
+            document.getElementById('answerInput').disabled = false;
+            document.getElementById('optionsContainer').style.display = 'none';
+            document.getElementById('answerContainer').style.display = 'block';
+            
+            document.getElementById('timerText').textContent = '∞';
+            document.getElementById('playersInfo').style.display = 'block';
+            document.getElementById('currentScore').textContent = `Score: ${practiceScore}`;
+            document.getElementById('answersInfo').textContent = `Correct: ${practiceCorrectAnswers}/${currentPracticeQuestion}`;
+            
+            updatePracticeUI();
+        }
+
+        function leaveGame() {
+            if (practiceQuestions.length > 0) {
+                // Practice mode
+                practiceQuestions = [];
+                currentPracticeQuestion = 0;
+                practiceScore = 0;
+                practiceCorrectAnswers = 0;
+                practiceStreak = 0;
+                showMainMenu();
+            } else {
+                // Multiplayer mode
+                leaveParty();
+            }
+        }
+
+        function updatePracticeUI() {
+            document.getElementById('gameTitle').textContent = `Practice Mode - Question ${currentPracticeQuestion + 1}/${practiceQuestions.length}`;
+            document.getElementById('streakIndicator').style.display = practiceStreak > 0 ? 'block' : 'none';
+            document.getElementById('streakText').textContent = `${practiceStreak}x Streak!`;
+        }
+
+        function submitPracticeAnswer() {
+            const answerInput = document.getElementById('answerInput');
+            const answer = answerInput.value.trim();
+            
+            if (!answer || answerCooldown) return;
+
+            answerCooldown = true;
+            setTimeout(() => { answerCooldown = false; }, 2000);
+
+            const currentQ = practiceQuestions[currentPracticeQuestion];
+            const isCorrect = answer.toLowerCase() === currentQ.answer.toLowerCase();
+            
+            answerInput.disabled = true;
+            
+            if (isCorrect) {
+                practiceCorrectAnswers++;
+                practiceStreak++;
+                
+                const difficulty = currentQ.difficulty;
+                let baseCoins = difficulty === 'easy' ? 5 : difficulty === 'hard' ? 7 : 9;
+                let baseXP = baseCoins * 2;
+                
+                const streakMultiplier = 1 + (practiceStreak * 0.1);
+                const coinsEarned = Math.floor(baseCoins * streakMultiplier);
+                const xpEarned = Math.floor(baseXP * streakMultiplier);
+                
+                practiceScore += coinsEarned;
+                currentUser.coins = (currentUser.coins || 0) + coinsEarned;
+                currentUser.xp = (currentUser.xp || 0) + xpEarned;
+                
+                saveUserData();
+                updateProfileDisplay();
+                
+                showToast(`Correct! +${coinsEarned} coins, +${xpEarned} XP`, 'success');
+                playSound('correct');
+            } else {
+                practiceStreak = 0;
+                showToast(`Wrong! Correct answer: ${currentQ.answer}`, 'error');
+                playSound('wrong');
+            }
+            
+            updatePracticeUI();
+            
+            setTimeout(() => {
+                nextPracticeQuestion();
+            }, 2000);
+        }
+
+        function nextPracticeQuestion() {
+            currentPracticeQuestion++;
+            
+            if (currentPracticeQuestion >= practiceQuestions.length) {
+                showPracticeResults();
+                return;
+            }
+            
+            showPracticeGame();
+        }
+
+        function showPracticeResults() {
+            showScreen('resultsScreen');
+            
+            const accuracy = practiceQuestions.length > 0 ? Math.round((practiceCorrectAnswers / practiceQuestions.length) * 100) : 0;
+            
+            document.getElementById('finalScore').textContent = practiceScore;
+            document.getElementById('correctAnswers').textContent = `${practiceCorrectAnswers}/${practiceQuestions.length}`;
+            document.getElementById('accuracy').textContent = `${accuracy}%`;
+            
+            document.getElementById('backToMenuBtn').style.display = 'block';
+            document.getElementById('playAgainBtn').style.display = 'none';
+        }
+
         function createParty() {
             if (!validateUsername(currentUser.username)) {
                 showUsernameWarning();
                 return;
             }
 
+            const partyCode = generatePartyCode();
             const partyData = {
-                userId: currentUser.id,
-                username: currentUser.username,
-                playerCount: parseInt(document.getElementById('playerCount').value),
+                code: partyCode,
+                hostId: currentUser.id,
+                maxPlayers: parseInt(document.getElementById('playerCount').value),
                 language: document.getElementById('language').value,
                 category: document.getElementById('category').value,
-                difficulty: document.getElementById('difficulty').value
+                difficulty: document.getElementById('difficulty').value,
+                status: 'waiting',
+                createdAt: firebase.database.ServerValue.TIMESTAMP,
+                players: {
+                    [currentUser.id]: {
+                        id: currentUser.id,
+                        username: currentUser.username,
+                        isHost: true,
+                        score: 0,
+                        correctAnswers: 0,
+                        streak: 0,
+                        joinedAt: firebase.database.ServerValue.TIMESTAMP
+                    }
+                }
             };
 
-            socket.send(JSON.stringify({
-                type: 'createParty',
-                data: partyData
-            }));
+            database.ref('parties/' + partyCode).set(partyData).then(() => {
+                currentParty = { code: partyCode, ...partyData };
+                setupPartyListeners(partyCode);
+                showPartyScreen();
+                
+                setTimeout(() => {
+                    if (currentParty && currentParty.status === 'waiting') {
+                        startGameAutomatically();
+                    }
+                }, 5 * 60 * 1000);
+            }).catch(error => {
+                if (error.message.includes('PERMISSION_DENIED')) {
+                    showToast('Firebase permissions need configuration. Try Practice Mode!', 'error');
+                    setTimeout(() => showPracticeMode(), 2000);
+                } else {
+                    showToast('Failed to create party: ' + error.message, 'error');
+                }
+            });
+        }
+
+        function generatePartyCode() {
+            return Math.random().toString(36).substr(2, 6).toUpperCase();
         }
 
         function joinParty() {
@@ -1266,14 +1463,72 @@
                 return;
             }
 
-            socket.send(JSON.stringify({
-                type: 'joinParty',
-                data: {
-                    userId: currentUser.id,
-                    username: currentUser.username,
-                    partyCode: partyCode
+            database.ref('parties/' + partyCode).once('value', (snapshot) => {
+                const party = snapshot.val();
+                
+                if (!party) {
+                    showToast('Party not found', 'error');
+                    return;
                 }
-            }));
+                
+                if (party.status !== 'waiting') {
+                    showToast('Game already in progress', 'error');
+                    return;
+                }
+                
+                const playerCount = Object.keys(party.players || {}).length;
+                if (playerCount >= party.maxPlayers) {
+                    showToast('Party is full', 'error');
+                    return;
+                }
+                
+                if (party.players && party.players[currentUser.id]) {
+                    showToast('Already in this party', 'error');
+                    return;
+                }
+                
+                database.ref('parties/' + partyCode + '/players/' + currentUser.id).set({
+                    id: currentUser.id,
+                    username: currentUser.username,
+                    isHost: false,
+                    score: 0,
+                    correctAnswers: 0,
+                    streak: 0,
+                    joinedAt: firebase.database.ServerValue.TIMESTAMP
+                }).then(() => {
+                    currentParty = { code: partyCode, ...party };
+                    setupPartyListeners(partyCode);
+                    showPartyScreen();
+                }).catch(error => {
+                    showToast('Failed to join party: ' + error.message, 'error');
+                });
+            }).catch(error => {
+                showToast('Error checking party: ' + error.message, 'error');
+            });
+        }
+
+        function setupPartyListeners(partyCode) {
+            database.ref('parties/' + partyCode).on('value', (snapshot) => {
+                const party = snapshot.val();
+                if (party) {
+                    currentParty = { code: partyCode, ...party };
+                    updatePartyScreen();
+                    
+                    if (party.status === 'playing' && !currentGame) {
+                        showGameScreen();
+                    } else if (party.status === 'finished') {
+                        showResultsScreen(party.results);
+                    }
+                }
+            });
+            
+            database.ref('games/' + partyCode).on('value', (snapshot) => {
+                const game = snapshot.val();
+                if (game) {
+                    currentGame = game;
+                    updateGameScreen(game);
+                }
+            });
         }
 
         function showPartyScreen() {
@@ -1282,19 +1537,20 @@
         }
 
         function updatePartyScreen() {
-            if (!currentParty) return;
+            if (!currentParty || !currentParty.players) return;
 
             document.getElementById('partyCodeDisplay').textContent = currentParty.code;
+            const playerCount = Object.keys(currentParty.players).length;
             document.getElementById('playerCountDisplay').textContent = 
-                `${currentParty.players.length}/${currentParty.maxPlayers} Players`;
+                `${playerCount}/${currentParty.maxPlayers} Players`;
 
-            const isHost = currentParty.players.find(p => p.id === currentUser.id)?.isHost;
+            const isHost = currentParty.players[currentUser.id]?.isHost;
             const hostControls = document.getElementById('hostControls');
             
             if (isHost) {
                 hostControls.style.display = 'block';
                 const startBtn = document.getElementById('startGameBtn');
-                startBtn.disabled = currentParty.players.length < 2;
+                startBtn.disabled = playerCount < 2;
             } else {
                 hostControls.style.display = 'none';
             }
@@ -1302,7 +1558,7 @@
             const playersList = document.getElementById('playersList');
             playersList.innerHTML = '';
             
-            currentParty.players.forEach(player => {
+            Object.values(currentParty.players).forEach(player => {
                 const playerCard = document.createElement('div');
                 playerCard.className = 'player-card';
                 playerCard.innerHTML = `
@@ -1317,22 +1573,274 @@
         }
 
         function startGame() {
-            if (currentParty && currentParty.players.length >= 2) {
-                socket.send(JSON.stringify({
-                    type: 'startGame',
-                    data: { partyCode: currentParty.code }
-                }));
+            if (!currentParty || !currentParty.players[currentUser.id]?.isHost) {
+                showToast('Only the host can start the game', 'error');
+                return;
+            }
+            
+            const playerCount = Object.keys(currentParty.players).length;
+            if (playerCount < 2) {
+                showToast('Need at least 2 players to start', 'error');
+                return;
+            }
+            
+            const gameQuestions = getRandomQuestions(currentParty.category, currentParty.difficulty, 10);
+            const gameData = {
+                partyCode: currentParty.code,
+                questions: gameQuestions,
+                currentQuestion: 0,
+                phase: 'input',
+                answers: {},
+                startTime: firebase.database.ServerValue.TIMESTAMP,
+                timer: 10
+            };
+            
+            Promise.all([
+                database.ref('parties/' + currentParty.code + '/status').set('playing'),
+                database.ref('games/' + currentParty.code).set(gameData)
+            ]).then(() => {
+                startQuestionTimer(currentParty.code);
+            }).catch(error => {
+                showToast('Failed to start game: ' + error.message, 'error');
+            });
+        }
+
+        function startGameAutomatically() {
+            if (currentParty && currentParty.players[currentUser.id]?.isHost) {
+                const playerCount = Object.keys(currentParty.players).length;
+                if (playerCount >= 2) {
+                    startGame();
+                }
             }
         }
 
-        function leaveParty() {
-            if (currentParty) {
-                socket.send(JSON.stringify({
-                    type: 'leaveParty',
-                    data: { partyCode: currentParty.code }
-                }));
+        function getRandomQuestions(category, difficulty, count) {
+            const questions = {
+                easy: [
+                    { text: "What is the capital of France?", answer: "paris", category: "geography", difficulty: "easy" },
+                    { text: "What is 2 + 2?", answer: "4", category: "general", difficulty: "easy" },
+                    { text: "What color do you get when you mix red and blue?", answer: "purple", category: "general", difficulty: "easy" },
+                    { text: "How many days are in a week?", answer: "7", category: "general", difficulty: "easy" },
+                    { text: "What is the largest planet in our solar system?", answer: "jupiter", category: "science", difficulty: "easy" },
+                    { text: "In which sport would you perform a slam dunk?", answer: "basketball", category: "sports", difficulty: "easy" },
+                    { text: "What is the capital of Italy?", answer: "rome", category: "geography", difficulty: "easy" },
+                    { text: "How many legs does a spider have?", answer: "8", category: "science", difficulty: "easy" },
+                    { text: "What is the first letter of the alphabet?", answer: "a", category: "general", difficulty: "easy" },
+                    { text: "Which ocean is the largest?", answer: "pacific", category: "geography", difficulty: "easy" }
+                ],
+                hard: [
+                    { text: "What is the capital of Kazakhstan?", answer: "nur-sultan", category: "geography", difficulty: "hard" },
+                    { text: "Who wrote 'Romeo and Juliet'?", answer: "shakespeare", category: "history", difficulty: "hard" },
+                    { text: "What is the chemical symbol for gold?", answer: "au", category: "science", difficulty: "hard" },
+                    { text: "In which year did World War II end?", answer: "1945", category: "history", difficulty: "hard" },
+                    { text: "What is the square root of 144?", answer: "12", category: "general", difficulty: "hard" },
+                    { text: "Which planet is closest to the Sun?", answer: "mercury", category: "science", difficulty: "hard" },
+                    { text: "What is the longest river in the world?", answer: "nile", category: "geography", difficulty: "hard" },
+                    { text: "Who painted the Mona Lisa?", answer: "da vinci", category: "history", difficulty: "hard" },
+                    { text: "What is the fastest land animal?", answer: "cheetah", category: "science", difficulty: "hard" },
+                    { text: "In tennis, what does 'love' mean?", answer: "zero", category: "sports", difficulty: "hard" }
+                ],
+                impossible: [
+                    { text: "What is the 15th element on the periodic table?", answer: "phosphorus", category: "science", difficulty: "impossible" },
+                    { text: "Who was the first person to walk on the moon?", answer: "armstrong", category: "history", difficulty: "impossible" },
+                    { text: "What is the capital of Bhutan?", answer: "thimphu", category: "geography", difficulty: "impossible" },
+                    { text: "In what year was the first iPhone released?", answer: "2007", category: "general", difficulty: "impossible" },
+                    { text: "What is the scientific name for humans?", answer: "homo sapiens", category: "science", difficulty: "impossible" },
+                    { text: "Which country has won the most FIFA World Cups?", answer: "brazil", category: "sports", difficulty: "impossible" },
+                    { text: "What is the smallest country in the world?", answer: "vatican", category: "geography", difficulty: "impossible" },
+                    { text: "Who composed 'The Four Seasons'?", answer: "vivaldi", category: "history", difficulty: "impossible" },
+                    { text: "What is the hardest natural substance on Earth?", answer: "diamond", category: "science", difficulty: "impossible" },
+                    { text: "In which year did the Berlin Wall fall?", answer: "1989", category: "history", difficulty: "impossible" }
+                ]
+            };
+            
+            let pool = [];
+            if (difficulty === 'random') {
+                pool = [...questions.easy, ...questions.hard, ...questions.impossible];
+            } else {
+                pool = [...questions[difficulty]];
             }
-            showMainMenu();
+            
+            if (category !== 'general') {
+                pool = pool.filter(q => q.category === category);
+            }
+            
+            if (pool.length < count) {
+                pool = [...questions.easy, ...questions.hard, ...questions.impossible];
+            }
+            
+            const selected = [];
+            for (let i = 0; i < count && pool.length > 0; i++) {
+                const index = Math.floor(Math.random() * pool.length);
+                selected.push(pool.splice(index, 1)[0]);
+            }
+            
+            return selected;
+        }
+
+        function startQuestionTimer(partyCode) {
+            if (!currentParty || !currentParty.players[currentUser.id]?.isHost) return;
+            
+            setTimeout(() => {
+                database.ref('games/' + partyCode).once('value', (snapshot) => {
+                    const game = snapshot.val();
+                    if (game && game.phase === 'input') {
+                        moveToOptionsPhase(partyCode);
+                    }
+                });
+            }, 10000);
+        }
+
+        function moveToOptionsPhase(partyCode) {
+            if (!currentParty || !currentParty.players[currentUser.id]?.isHost) return;
+            
+            database.ref('games/' + partyCode).once('value', (snapshot) => {
+                const game = snapshot.val();
+                if (!game) return;
+                
+                const currentQ = game.questions[game.currentQuestion];
+                const playerAnswers = Object.values(game.answers || {}).map(a => a.answer);
+                const wrongAnswers = generateWrongAnswers(currentQ.answer, playerAnswers);
+                
+                const options = [
+                    { text: currentQ.answer, correct: true },
+                    ...wrongAnswers.map(answer => ({ text: answer, correct: false }))
+                ];
+                
+                for (let i = options.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [options[i], options[j]] = [options[j], options[i]];
+                }
+                
+                database.ref('games/' + partyCode).update({
+                    phase: 'options',
+                    ['questions/' + game.currentQuestion + '/options']: options
+                }).then(() => {
+                    setTimeout(() => {
+                        nextQuestion(partyCode);
+                    }, 10000);
+                });
+            });
+        }
+
+        function generateWrongAnswers(correctAnswer, playerAnswers = []) {
+            const wrongAnswers = [];
+            const usedAnswers = new Set([correctAnswer.toLowerCase()]);
+            
+            playerAnswers.forEach(answer => {
+                if (answer && answer.toLowerCase() !== correctAnswer.toLowerCase()) {
+                    wrongAnswers.push(answer);
+                    usedAnswers.add(answer.toLowerCase());
+                }
+            });
+            
+            const commonWrongAnswers = [
+                'london', 'paris', 'berlin', 'madrid', 'rome', 'tokyo', 'beijing',
+                'blue', 'red', 'green', 'yellow', 'purple', 'orange', 'black', 'white',
+                '1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
+                'yes', 'no', 'maybe', 'true', 'false', 'none', 'all', 'some'
+            ];
+            
+            while (wrongAnswers.length < 4) {
+                const randomWrong = commonWrongAnswers[Math.floor(Math.random() * commonWrongAnswers.length)];
+                if (!usedAnswers.has(randomWrong.toLowerCase())) {
+                    wrongAnswers.push(randomWrong);
+                    usedAnswers.add(randomWrong.toLowerCase());
+                }
+            }
+            
+            return wrongAnswers.slice(0, 4);
+        }
+
+        function nextQuestion(partyCode) {
+            if (!currentParty || !currentParty.players[currentUser.id]?.isHost) return;
+            
+            database.ref('games/' + partyCode).once('value', (snapshot) => {
+                const game = snapshot.val();
+                if (!game) return;
+                
+                const nextQuestionIndex = game.currentQuestion + 1;
+                
+                if (nextQuestionIndex >= game.questions.length) {
+                    endGame(partyCode);
+                    return;
+                }
+                
+                database.ref('games/' + partyCode).update({
+                    currentQuestion: nextQuestionIndex,
+                    phase: 'input',
+                    answers: {},
+                    timer: 10
+                }).then(() => {
+                    startQuestionTimer(partyCode);
+                });
+            });
+        }
+
+        function endGame(partyCode) {
+            if (!currentParty || !currentParty.players[currentUser.id]?.isHost) return;
+            
+            const results = {
+                players: Object.values(currentParty.players).map(p => ({
+                    id: p.id,
+                    username: p.username,
+                    score: p.score || 0,
+                    correctAnswers: p.correctAnswers || 0
+                })).sort((a, b) => b.score - a.score)
+            };
+            
+            Promise.all([
+                database.ref('parties/' + partyCode + '/status').set('finished'),
+                database.ref('parties/' + partyCode + '/results').set(results),
+                database.ref('games/' + partyCode).remove()
+            ]).then(() => {
+                setTimeout(() => {
+                    const newCode = generatePartyCode();
+                    const resetPlayers = {};
+                    
+                    Object.values(currentParty.players).forEach(player => {
+                        resetPlayers[player.id] = {
+                            ...player,
+                            score: 0,
+                            correctAnswers: 0,
+                            streak: 0
+                        };
+                    });
+                    
+                    database.ref('parties/' + newCode).set({
+                        code: newCode,
+                        hostId: currentParty.hostId,
+                        maxPlayers: currentParty.maxPlayers,
+                        language: currentParty.language,
+                        category: currentParty.category,
+                        difficulty: currentParty.difficulty,
+                        status: 'waiting',
+                        createdAt: firebase.database.ServerValue.TIMESTAMP,
+                        players: resetPlayers
+                    }).then(() => {
+                        database.ref('parties/' + partyCode).remove();
+                        currentParty = null;
+                        setupPartyListeners(newCode);
+                    });
+                }, 30000);
+            });
+        }
+
+        function leaveParty() {
+            if (currentParty && currentUser.id) {
+                database.ref('parties/' + currentParty.code + '/players/' + currentUser.id).remove().then(() => {
+                    database.ref('parties/' + currentParty.code).off();
+                    database.ref('games/' + currentParty.code).off();
+                    currentParty = null;
+                    currentGame = null;
+                    showMainMenu();
+                }).catch(error => {
+                    showToast('Error leaving party: ' + error.message, 'error');
+                    showMainMenu();
+                });
+            } else {
+                showMainMenu();
+            }
         }
 
         function showGameScreen() {
@@ -1384,6 +1892,12 @@
         }
 
         function submitAnswer() {
+            // Check if we're in practice mode
+            if (practiceQuestions.length > 0 && currentPracticeQuestion < practiceQuestions.length) {
+                submitPracticeAnswer();
+                return;
+            }
+            
             const answerInput = document.getElementById('answerInput');
             const answer = answerInput.value.trim();
             
@@ -1392,33 +1906,98 @@
             answerCooldown = true;
             setTimeout(() => { answerCooldown = false; }, 2000);
 
-            socket.send(JSON.stringify({
-                type: 'submitAnswer',
-                data: { answer: answer }
-            }));
+            // For multiplayer mode with Firebase
+            if (currentGame && currentParty) {
+                const currentQ = currentGame.questions[currentGame.currentQuestion];
+                const isCorrect = answer.toLowerCase() === currentQ.answer.toLowerCase();
 
-            answerInput.disabled = true;
-            showToast('Answer submitted!', 'success');
+                database.ref('games/' + currentParty.code + '/answers/' + currentUser.id).set({
+                    answer: answer,
+                    correct: isCorrect,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                }).then(() => {
+                    answerInput.disabled = true;
+                    showToast('Answer submitted!', 'success');
+                    
+                    if (isCorrect) {
+                        updatePlayerScore(true);
+                    }
+                }).catch(error => {
+                    // Fallback for permission errors
+                    answerInput.disabled = true;
+                    showToast(`Answer: ${answer} (Firebase permissions need configuration)`, 'success');
+                    answerCooldown = false;
+                });
+            }
+        }
+
+        function updatePlayerScore(isCorrect) {
+            if (!currentParty || !currentGame) return;
+            
+            const playerRef = database.ref('parties/' + currentParty.code + '/players/' + currentUser.id);
+            const currentQ = currentGame.questions[currentGame.currentQuestion];
+            
+            if (isCorrect) {
+                const difficulty = currentQ.difficulty;
+                let baseCoins = difficulty === 'easy' ? 5 : difficulty === 'hard' ? 7 : 9;
+                let baseXP = baseCoins * 2;
+                
+                const currentPlayer = currentParty.players[currentUser.id];
+                const newStreak = (currentPlayer.streak || 0) + 1;
+                const streakMultiplier = 1 + (newStreak * 0.1);
+                
+                const coinsEarned = Math.floor(baseCoins * streakMultiplier);
+                const xpEarned = Math.floor(baseXP * streakMultiplier);
+                
+                playerRef.update({
+                    score: (currentPlayer.score || 0) + coinsEarned,
+                    correctAnswers: (currentPlayer.correctAnswers || 0) + 1,
+                    streak: newStreak
+                });
+                
+                currentUser.coins = (currentUser.coins || 0) + coinsEarned;
+                currentUser.xp = (currentUser.xp || 0) + xpEarned;
+                saveUserData();
+                updateProfileDisplay();
+                
+                document.getElementById('streakIndicator').style.display = 'block';
+                document.getElementById('streakText').textContent = `${newStreak}x Streak!`;
+            } else {
+                playerRef.update({
+                    streak: 0
+                });
+                document.getElementById('streakIndicator').style.display = 'none';
+            }
         }
 
         function selectOption(index) {
-            if (answerCooldown) return;
+            if (answerCooldown || !currentGame) return;
 
             answerCooldown = true;
             setTimeout(() => { answerCooldown = false; }, 2000);
 
-            socket.send(JSON.stringify({
-                type: 'selectOption',
-                data: { optionIndex: index }
-            }));
+            const currentQ = currentGame.questions[currentGame.currentQuestion];
+            const selectedOption = currentQ.options[index];
+            
+            if (selectedOption.correct) {
+                updatePlayerScore(true);
+                playSound('correct');
+            } else {
+                updatePlayerScore(false);
+                playSound('wrong');
+            }
 
             const options = document.querySelectorAll('.option-btn');
             options.forEach((btn, i) => {
                 if (i === index) {
-                    btn.classList.add('selected');
+                    btn.classList.add(selectedOption.correct ? 'correct' : 'wrong');
+                } else if (currentQ.options[i].correct) {
+                    btn.classList.add('correct');
                 }
                 btn.disabled = true;
             });
+
+            showToast(selectedOption.correct ? 'Correct!' : 'Wrong!', selectedOption.correct ? 'success' : 'error');
         }
 
         function startTimer(seconds) {
@@ -1532,16 +2111,35 @@
         }
 
         function uploadAvatar() {
-            const file = document.getElementById('avatarUpload').files[0];
-            if (file && (file.type === 'image/png' || file.type === 'image/jpeg')) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    currentUser.avatar = e.target.result;
-                    saveUserData();
-                    showToast('Avatar updated!', 'success');
-                };
-                reader.readAsDataURL(file);
+            const input = document.getElementById('avatarUpload');
+            const file = input.files[0];
+            
+            if (!file) {
+                showToast('Please select an image file first.', 'error');
+                return;
             }
+            
+            if (file.size > 1024 * 1024) {
+                showToast('File too large! Please choose a file smaller than 1MB.', 'error');
+                return;
+            }
+            
+            if (!file.type.startsWith('image/')) {
+                showToast('Please select an image file (PNG, JPG, JPEG).', 'error');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentUser.avatar = e.target.result;
+                saveUserData();
+                updateProfileDisplay();
+                showToast('Avatar updated successfully!', 'success');
+            };
+            reader.onerror = function() {
+                showToast('Error reading file. Please try again.', 'error');
+            };
+            reader.readAsDataURL(file);
         }
 
         function toggleDarkMode() {
