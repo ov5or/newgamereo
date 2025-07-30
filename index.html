@@ -17,6 +17,21 @@
             min-height: 100vh;
             color: #333;
             transition: all 0.3s ease;
+            overflow-x: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 20%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
         }
 
         body.dark-mode {
@@ -53,20 +68,51 @@
         }
 
         .header h1 {
-            font-size: 2.5rem;
-            font-weight: bold;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7, #fd79a8);
+            background-size: 400% 400%;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 3s ease-in-out infinite;
             margin-bottom: 1rem;
+            text-shadow: 0 0 30px rgba(255,255,255,0.5);
+        }
+        
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
         }
 
         .card {
             background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
+            border-radius: 25px;
             padding: 2rem;
             margin: 1rem 0;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            backdrop-filter: blur(10px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1), 
+                        0 5px 15px rgba(0,0,0,0.07),
+                        inset 0 1px 0 rgba(255,255,255,0.6);
+            backdrop-filter: blur(20px);
             border: 1px solid rgba(255,255,255,0.2);
+            position: relative;
+            overflow: hidden;
+            transform: translateZ(0);
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+        
+        .card:hover::before {
+            left: 100%;
         }
 
         .dark-mode .card {
@@ -75,25 +121,36 @@
         }
 
         .btn {
-            background: linear-gradient(45deg, #667eea, #764ba2);
+            background: linear-gradient(45deg, #667eea, #764ba2, #ff6b6b);
+            background-size: 200% 200%;
             color: white;
             border: none;
-            padding: 15px 30px;
+            padding: 18px 35px;
             border-radius: 50px;
             cursor: pointer;
             font-size: 1.1rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
+            font-weight: 700;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             display: inline-block;
             text-decoration: none;
             text-align: center;
             margin: 10px;
             min-width: 150px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            animation: buttonGlow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes buttonGlow {
+            0% { box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3); }
+            100% { box-shadow: 0 12px 35px rgba(102, 126, 234, 0.5); }
         }
 
         .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transform: translateY(-5px) scale(1.05);
+            background-position: 100% 0;
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
         }
 
         .btn:active {
@@ -106,6 +163,23 @@
 
         .btn.danger {
             background: linear-gradient(45deg, #e74c3c, #c0392b);
+        }
+        
+        .btn.practice-btn {
+            background: linear-gradient(45deg, #27ae60, #2ecc71, #3498db);
+            background-size: 200% 200%;
+            animation: practiceGlow 3s ease-in-out infinite;
+        }
+        
+        @keyframes practiceGlow {
+            0%, 100% { 
+                background-position: 0% 50%;
+                box-shadow: 0 8px 25px rgba(39, 174, 96, 0.4);
+            }
+            50% { 
+                background-position: 100% 50%;
+                box-shadow: 0 12px 35px rgba(52, 152, 219, 0.5);
+            }
         }
 
         .input-group {
@@ -557,12 +631,103 @@
             font-size: 0.9rem;
             font-weight: bold;
         }
+        
+        .floating-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .glow-effect {
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { box-shadow: 0 0 20px rgba(102, 126, 234, 0.5); }
+            to { box-shadow: 0 0 30px rgba(255, 107, 107, 0.7); }
+        }
+        
+        .shake-animation {
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .bounce-in {
+            animation: bounceIn 0.6s ease-out;
+        }
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0.3) translateY(-50px); opacity: 0; }
+            50% { transform: scale(1.1); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+        
+        .slide-up {
+            animation: slideUp 0.5s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .neon-text {
+            text-shadow: 0 0 5px currentColor,
+                         0 0 10px currentColor,
+                         0 0 15px currentColor,
+                         0 0 20px currentColor;
+        }
+        
+        .loading-dots::after {
+            content: '';
+            animation: dots 1.5s steps(3, end) infinite;
+        }
+        
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
     </style>
 </head>
 <body>
+    <div class="floating-particles" id="particles"></div>
+    
     <div class="container">
         <div class="header">
-            <h1 id="app-title">Quiz Master</h1>
+            <h1 id="app-title" class="neon-text">Quiz Master</h1>
         </div>
 
         <div class="tabs">
@@ -576,8 +741,13 @@
             <div class="card">
                 <h2 id="main-title">Welcome to Quiz Master</h2>
                 <div style="text-align: center; margin: 2rem 0;">
-                    <button class="btn" onclick="showCreateParty()" id="create-party-btn">Create Party</button>
-                    <button class="btn secondary" onclick="showJoinParty()" id="join-party-btn">Join Party</button>
+                    <button class="btn practice-btn pulse-animation" onclick="startPracticeMode()" id="practice-btn">🎯 Practice Mode - Play Solo!</button>
+                    <button class="btn glow-effect" onclick="showCreateParty()" id="create-party-btn">🎉 Create Party</button>
+                    <button class="btn secondary" onclick="showJoinParty()" id="join-party-btn">🚀 Join Party</button>
+                </div>
+                <div style="text-align: center; margin: 1rem 0; background: rgba(39, 174, 96, 0.1); padding: 15px; border-radius: 15px;">
+                    <p style="font-size: 1.1rem; font-weight: 600;">✨ New! Practice Mode is now available for offline play!</p>
+                    <p style="opacity: 0.8;">Perfect your skills, earn XP and coins without needing other players</p>
                 </div>
             </div>
         </div>
@@ -796,6 +966,73 @@
                             <div class="toggle-slider"></div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="practice-screen" class="screen">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2>🎯 Practice Mode</h2>
+                    <button class="btn danger" onclick="exitPractice()">Exit</button>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="practice-question-num">1</div>
+                        <div>Question</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="practice-score">0</div>
+                        <div>Score</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="practice-streak">0</div>
+                        <div>Streak</div>
+                    </div>
+                </div>
+                
+                <div class="question-card">
+                    <div class="question-text" id="practice-question-text">Loading question...</div>
+                    <div class="timer-circle" id="practice-timer-display">10</div>
+                    <input type="text" class="answer-input" id="practice-answer-input" placeholder="Type your answer...">
+                    <div class="options-grid hidden" id="practice-options-container"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="practice-results-screen" class="screen">
+            <div class="card">
+                <h2>🏆 Practice Complete!</h2>
+                
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="practice-final-score">0</div>
+                        <div>Final Score</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="practice-total-questions">10</div>
+                        <div>Questions</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="practice-correct-answers">0</div>
+                        <div>Correct</div>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin: 2rem 0;">
+                    <button class="btn practice-btn" onclick="restartPractice()">🔄 Practice Again</button>
+                    <button class="btn secondary" onclick="exitPractice()">🏠 Main Menu</button>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 15px; margin: 1rem 0;">
+                    <h3>🎉 Practice Benefits:</h3>
+                    <ul style="text-align: left; margin: 10px 0;">
+                        <li>✓ Earn XP and coins</li>
+                        <li>✓ No pressure from other players</li>
+                        <li>✓ Learn at your own pace</li>
+                        <li>✓ Improve your skills</li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -1277,6 +1514,194 @@
             document.getElementById('main-screen').classList.remove('active');
             document.getElementById('join-party-screen').classList.add('active');
         }
+        
+        function startPracticeMode() {
+            playSound('click');
+            gameState.isPracticeMode = true;
+            gameState.currentQuestion = 0;
+            gameState.score = 0;
+            gameState.streak = 0;
+            gameState.answers = [];
+            gameState.gameStarted = true;
+            gameState.practiceQuestions = generatePracticeQuestions();
+            
+            document.getElementById('main-screen').classList.remove('active');
+            document.getElementById('practice-screen').classList.add('active');
+            
+            showNotification('Practice Mode Started!', 'success');
+            nextPracticeQuestion();
+        }
+        
+        function generatePracticeQuestions() {
+            const allQuestions = [];
+            Object.values(questions).forEach(category => {
+                Object.values(category).forEach(difficulty => {
+                    allQuestions.push(...difficulty);
+                });
+            });
+            return allQuestions.sort(() => Math.random() - 0.5).slice(0, 10);
+        }
+        
+        function nextPracticeQuestion() {
+            if (gameState.currentQuestion >= 10) {
+                endPracticeMode();
+                return;
+            }
+            
+            gameState.currentQuestion++;
+            gameState.timeLeft = 10;
+            
+            const currentQ = gameState.practiceQuestions[gameState.currentQuestion - 1];
+            const difficulty = currentQ.question.includes('deepest') || currentQ.question.includes('record') ? 'impossible' : 
+                             currentQ.question.includes('smallest') || currentQ.question.includes('maximum') ? 'hard' : 'easy';
+            
+            document.getElementById('practice-question-num').textContent = gameState.currentQuestion;
+            document.getElementById('practice-score').textContent = gameState.score;
+            document.getElementById('practice-streak').textContent = gameState.streak;
+            document.getElementById('practice-question-text').innerHTML = currentQ.question + 
+                `<span class="difficulty-badge difficulty-${difficulty}">${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}</span>`;
+            
+            const answerInput = document.getElementById('practice-answer-input');
+            answerInput.value = '';
+            answerInput.disabled = true;
+            answerInput.placeholder = 'Get ready...';
+            
+            document.getElementById('practice-options-container').classList.add('hidden');
+            
+            setTimeout(() => {
+                answerInput.disabled = false;
+                answerInput.placeholder = 'Type your answer...';
+                answerInput.focus();
+                startPracticeTimer(currentQ, difficulty);
+            }, 2000);
+        }
+        
+        function startPracticeTimer(question, difficulty) {
+            let timeLeft = 10;
+            const timerDisplay = document.getElementById('practice-timer-display');
+            
+            const timer = setInterval(() => {
+                timerDisplay.textContent = timeLeft;
+                const percentage = (timeLeft / 10) * 360;
+                timerDisplay.style.background = `conic-gradient(#e74c3c ${360 - percentage}deg, #3498db ${360 - percentage}deg)`;
+                
+                timeLeft--;
+                
+                if (timeLeft < 0) {
+                    clearInterval(timer);
+                    submitPracticeAnswer(question, difficulty);
+                }
+            }, 1000);
+            
+            document.getElementById('practice-answer-input').onkeypress = function(e) {
+                if (e.key === 'Enter') {
+                    clearInterval(timer);
+                    submitPracticeAnswer(question, difficulty);
+                    this.onkeypress = null;
+                }
+            };
+        }
+        
+        function submitPracticeAnswer(question, difficulty) {
+            const userAnswer = document.getElementById('practice-answer-input').value.trim().toLowerCase();
+            const correctAnswer = question.answer.toLowerCase();
+            const isCorrect = userAnswer === correctAnswer;
+            
+            if (isCorrect) {
+                gameState.streak++;
+                const basePoints = difficulty === 'easy' ? 5 : difficulty === 'hard' ? 7 : 9;
+                const streakBonus = Math.floor(gameState.streak / 3);
+                const points = basePoints + streakBonus;
+                
+                gameState.score += points;
+                addXP(points);
+                addCoins(Math.floor(basePoints / 2));
+                
+                playSound('correct');
+                showNotification(`Correct! +${points} points`, 'success');
+                
+                setTimeout(() => nextPracticeQuestion(), 2000);
+            } else {
+                gameState.streak = 0;
+                playSound('wrong');
+                showPracticeMultipleChoice(question);
+            }
+            
+            document.getElementById('practice-answer-input').disabled = true;
+        }
+        
+        function showPracticeMultipleChoice(question) {
+            const optionsContainer = document.getElementById('practice-options-container');
+            optionsContainer.classList.remove('hidden');
+            optionsContainer.innerHTML = '';
+            
+            const shuffledOptions = [...question.options].sort(() => Math.random() - 0.5);
+            
+            shuffledOptions.forEach(option => {
+                const optionBtn = document.createElement('button');
+                optionBtn.className = 'option-btn';
+                optionBtn.textContent = option;
+                optionBtn.onclick = () => selectPracticeOption(option, question.answer);
+                optionsContainer.appendChild(optionBtn);
+            });
+        }
+        
+        function selectPracticeOption(selectedOption, correctAnswer) {
+            const buttons = document.querySelectorAll('#practice-options-container .option-btn');
+            const isCorrect = selectedOption.toLowerCase() === correctAnswer.toLowerCase();
+            
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                if (btn.textContent.toLowerCase() === correctAnswer.toLowerCase()) {
+                    btn.classList.add('correct');
+                } else if (btn.textContent === selectedOption && !isCorrect) {
+                    btn.classList.add('wrong');
+                }
+            });
+            
+            if (isCorrect) {
+                gameState.score += 2;
+                addXP(2);
+                addCoins(1);
+                playSound('correct');
+                showNotification('Correct! +2 points', 'success');
+            } else {
+                playSound('wrong');
+                showNotification('Wrong answer!', 'error');
+            }
+            
+            setTimeout(() => nextPracticeQuestion(), 3000);
+        }
+        
+        function endPracticeMode() {
+            document.getElementById('practice-screen').classList.remove('active');
+            document.getElementById('practice-results-screen').classList.add('active');
+            
+            document.getElementById('practice-final-score').textContent = gameState.score;
+            document.getElementById('practice-total-questions').textContent = '10';
+            document.getElementById('practice-correct-answers').textContent = 
+                Math.floor(gameState.score / 3);
+            
+            currentUser.totalGames++;
+            saveUserData();
+            
+            playSound('levelUp');
+            showNotification(`Practice Complete! Final Score: ${gameState.score}`, 'success');
+        }
+        
+        function restartPractice() {
+            playSound('click');
+            document.getElementById('practice-results-screen').classList.remove('active');
+            startPracticeMode();
+        }
+        
+        function exitPractice() {
+            playSound('click');
+            gameState.isPracticeMode = false;
+            document.getElementById('practice-results-screen').classList.remove('active');
+            document.getElementById('practice-screen').classList.remove('active');
+            document.getElementById('main-screen').classList.add('active');
+        }
 
         function createParty() {
             playSound('click');
@@ -1321,14 +1746,25 @@
                 return;
             }
             
-            const party = parties.get(partyCode);
+            let party = parties.get(partyCode);
             if (!party) {
-                showNotification('Party not found', 'error');
-                return;
+                party = {
+                    code: partyCode,
+                    host: 'AutoHost',
+                    maxPlayers: 4,
+                    players: [],
+                    language: 'en',
+                    category: 'sports',
+                    difficulty: 'random',
+                    created: Date.now(),
+                    gameStarted: false
+                };
+                parties.set(partyCode, party);
+                showNotification('Party created for you!', 'success');
             }
             
             if (party.players.length >= party.maxPlayers) {
-                showNotification('Party is full', 'error');
+                showNotification(`Party full (${party.players.length}/${party.maxPlayers})`, 'error');
                 return;
             }
             
@@ -1337,9 +1773,14 @@
                 return;
             }
             
-            party.players.push(currentUser);
+            const isAlreadyInParty = party.players.some(p => p.username === currentUser.username);
+            if (!isAlreadyInParty) {
+                party.players.push({...currentUser});
+                showNotification(`Joined party! (${party.players.length}/${party.maxPlayers})`, 'success');
+            }
+            
             gameState.currentParty = partyCode;
-            gameState.isHost = false;
+            gameState.isHost = party.players[0]?.username === currentUser.username;
             gameState.language = party.language;
             
             document.getElementById('current-party-code').textContent = partyCode;
@@ -1748,12 +2189,64 @@
         function showNotification(message, type = 'success') {
             const notification = document.getElementById('notification');
             notification.textContent = message;
-            notification.className = `notification ${type}`;
+            notification.className = `notification ${type} bounce-in`;
             notification.classList.add('show');
             
             setTimeout(() => {
                 notification.classList.remove('show');
+                notification.classList.add('fade-out');
             }, 3000);
+            
+            setTimeout(() => {
+                notification.classList.remove('fade-out', 'bounce-in');
+            }, 3500);
+        }
+        
+        function createFloatingParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 50;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                const size = Math.random() * 4 + 2;
+                const left = Math.random() * 100;
+                const animationDelay = Math.random() * 6;
+                const animationDuration = Math.random() * 3 + 4;
+                
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                particle.style.left = left + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = animationDelay + 's';
+                particle.style.animationDuration = animationDuration + 's';
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        function addCoolEffects() {
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.classList.add('bounce-in');
+                }, index * 100);
+            });
+            
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(btn => {
+                btn.addEventListener('mouseenter', () => {
+                    btn.classList.add('pulse-animation');
+                });
+                btn.addEventListener('mouseleave', () => {
+                    btn.classList.remove('pulse-animation');
+                });
+                btn.addEventListener('click', () => {
+                    btn.classList.add('glow-effect');
+                    setTimeout(() => btn.classList.remove('glow-effect'), 1000);
+                });
+            });
         }
 
         function cleanupExpiredParties() {
@@ -1776,7 +2269,23 @@
             }
         });
 
+        function enhanceInitialization() {
+            loadUserData();
+            updateUI();
+            detectDevice();
+            loadSettings();
+            checkUrlParams();
+            applyLanguage();
+            createFloatingParticles();
+            addCoolEffects();
+            
+            setTimeout(() => {
+                document.body.classList.add('slide-up');
+            }, 100);
+        }
+        
         initializeApp();
+        enhanceInitialization();
     </script>
 </body>
 </html>
